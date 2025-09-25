@@ -104,7 +104,7 @@ services:
       - REDIS_HOST=redis
       - MONGODB_HOST=mongodb
       - CUDA_VISIBLE_DEVICES=0
-      - OPENAI_API_KEY=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
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_BASE_URL=https://api.openai.com/v1
       - OPENAI_MODEL=gpt-4o
       - DEFAULT_LLM_PROVIDER=openai
