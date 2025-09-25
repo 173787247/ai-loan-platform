@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-09-22T08:33:36.948780",
+  "environment_check": {
+    "env_file_loaded": true,
+    "default_provider": "openai",
+    "configured_providers": [
+      "OpenAI",
+      "DeepSeek",
+      "通义千问",
+      "智谱AI",
+      "百度文心一言",
+      "月之暗面"
+    ]
+  },
+  "ai_service_status": true,
+  "chatbot_status": true
+}

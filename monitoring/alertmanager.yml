@@ -1,0 +1,45 @@
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alertmanager@ai-loan-platform.com'
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://localhost:5001/'
+
+  - name: 'email'
+    email_configs:
+      - to: 'admin@ai-loan-platform.com'
+        subject: 'AI智能贷款平台告警: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          告警: {{ .Annotations.summary }}
+          描述: {{ .Annotations.description }}
+          时间: {{ .StartsAt }}
+          {{ end }}
+
+  - name: 'slack'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts'
+        title: 'AI智能贷款平台告警'
+        text: |
+          {{ range .Alerts }}
+          *告警:* {{ .Annotations.summary }}
+          *描述:* {{ .Annotations.description }}
+          *时间:* {{ .StartsAt }}
+          {{ end }}
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']

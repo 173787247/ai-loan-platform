@@ -1,0 +1,122 @@
+/* 布局测试样式 */
+.layout-test {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+}
+
+.test-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.test-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.test-header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.test-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.test-section {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.test-section:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.test-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #4ecdc4;
+}
+
+.test-section p {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.test-footer {
+  text-align: center;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.test-footer p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4ecdc4;
+  margin: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .layout-test {
+    padding: 15px;
+  }
+  
+  .test-header {
+    padding: 30px 15px;
+  }
+  
+  .test-header h1 {
+    font-size: 2rem;
+  }
+  
+  .test-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .test-section {
+    padding: 20px;
+  }
+  
+  .test-footer {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .test-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .test-header p {
+    font-size: 1rem;
+  }
+  
+  .test-section h2 {
+    font-size: 1.2rem;
+  }
+  
+  .test-section p {
+    font-size: 0.9rem;
+  }
+}

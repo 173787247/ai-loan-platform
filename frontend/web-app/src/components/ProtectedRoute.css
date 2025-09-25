@@ -1,0 +1,94 @@
+/* 加载状态样式 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: white;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-container p {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 访问拒绝样式 */
+.access-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: white;
+  text-align: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+}
+
+.access-denied h2 {
+  color: #e74c3c;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.access-denied p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+.back-btn:hover {
+  background: linear-gradient(135deg, #3cb0a8, #3a8b7a);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .access-denied h2 {
+    font-size: 2rem;
+  }
+
+  .access-denied p {
+    font-size: 1rem;
+    padding: 0 10px;
+  }
+
+  .back-btn {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
+}

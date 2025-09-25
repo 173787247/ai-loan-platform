@@ -1,0 +1,52 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #282c34;
+  color: white;
+  overflow-x: hidden; /* 防止水平滚动 */
+}
+
+/* 确保文字能够正确显示 */
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, div, .text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  * {
+    -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+  }
+  
+  input, textarea, select {
+    font-size: 16px; /* 防止iOS缩放 */
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .btn, .nav-link, .feature-card {
+    min-height: 44px; /* 确保触摸目标足够大 */
+    min-width: 44px;
+  }
+}

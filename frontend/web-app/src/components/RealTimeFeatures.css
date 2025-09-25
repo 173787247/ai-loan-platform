@@ -1,0 +1,554 @@
+/* 实时功能组件样式 */
+.realtime-features {
+  padding: 30px;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  color: white;
+}
+
+.realtime-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.realtime-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.realtime-header p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+}
+
+.realtime-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  font-weight: 600;
+  color: #4ecdc4;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group select {
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: 2px solid #4ecdc4;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  min-width: 150px;
+}
+
+.control-group select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+}
+
+.control-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4ecdc4;
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+.refresh-icon {
+  font-size: 1.1rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.connection-status {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.status-indicator.connected {
+  color: #28a745;
+  border: 1px solid #28a745;
+}
+
+.status-indicator.disconnected {
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.realtime-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 指标卡片网格 */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.metric-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-color: #4ecdc4;
+}
+
+.metric-icon {
+  font-size: 2.5rem;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-content h3 {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 5px;
+}
+
+.metric-trend {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+}
+
+.metric-trend.warning {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.metric-trend.normal {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+/* 活动流 */
+.activity-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  color: #4ecdc4;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.activity-count, .transaction-count {
+  background: rgba(78, 205, 196, 0.2);
+  color: #4ecdc4;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.activity-stream {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-time {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  min-width: 80px;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-type {
+  color: white;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.activity-user {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.activity-status {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* 交易列表 */
+.transactions-section {
+  margin-bottom: 40px;
+}
+
+.transactions-list {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-time {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  min-width: 80px;
+}
+
+.transaction-details {
+  flex: 1;
+}
+
+.transaction-amount {
+  color: #4ecdc4;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 2px;
+}
+
+.transaction-borrower {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.transaction-type {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.transaction-type.loan_approved {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.transaction-type.loan_rejected {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+/* 警报区域 */
+.alerts-section {
+  margin-bottom: 40px;
+}
+
+.clear-alerts-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-alerts-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.alerts-list {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.alert-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alert-item:last-child {
+  border-bottom: none;
+}
+
+.alert-time {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  min-width: 80px;
+}
+
+.alert-message {
+  flex: 1;
+  color: white;
+  font-weight: 500;
+}
+
+.alert-severity {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 系统状态 */
+.system-status {
+  margin-bottom: 40px;
+}
+
+.system-status h2 {
+  color: #4ecdc4;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.status-value {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-value.online {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.status-value.offline {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.status-value.warning {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .realtime-features {
+    padding: 20px 15px;
+  }
+
+  .realtime-header h1 {
+    font-size: 2rem;
+  }
+
+  .realtime-controls {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .control-group select {
+    min-width: 200px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .metric-card {
+    padding: 20px;
+  }
+
+  .activity-stream,
+  .transactions-list,
+  .alerts-list {
+    max-height: 250px;
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .activity-item,
+  .transaction-item,
+  .alert-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .activity-time,
+  .transaction-time,
+  .alert-time {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .realtime-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .metric-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .metric-icon {
+    font-size: 2rem;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .activity-stream,
+  .transactions-list,
+  .alerts-list {
+    padding: 15px;
+  }
+}

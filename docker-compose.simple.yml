@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: ai-loan-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ai_loan_platform
+      MYSQL_USER: ai_loan
+      MYSQL_PASSWORD: ai_loan123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ai-loan-network
+
+  # Redis缓存
+  redis:
+    image: redis:6.0-alpine
+    container_name: ai-loan-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-loan-network
+
+  # Web应用 (使用nginx提供静态文件)
+  web-app:
+    image: nginx:alpine
+    container_name: ai-loan-web-app
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend/web-app/public:/usr/share/nginx/html
+    networks:
+      - ai-loan-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  ai-loan-network:
+    driver: bridge

@@ -1,0 +1,64 @@
+{
+  "name": "AI智能助贷招标平台",
+  "short_name": "AI助贷平台",
+  "description": "基于人工智能的智能金融科技解决方案，提供风险评估、自动化匹配、实时监控等服务",
+  "version": "1.1.0",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#007bff",
+  "background_color": "#ffffff",
+  "scope": "/",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "categories": ["finance", "business", "productivity"],
+  "icons": [],
+  "screenshots": [],
+  "shortcuts": [],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "protocol_handlers": [],
+  "file_handlers": [
+    {
+      "action": "/file-handler",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+        "text/csv": [".csv"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "file",
+          "accept": ["application/pdf", "image/*", ".doc", ".docx"]
+        }
+      ]
+    }
+  },
+  "permissions": [
+    "notifications",
+    "background-sync",
+    "persistent-storage"
+  ],
+  "features": [
+    "Cross Platform",
+    "fast",
+    "simple"
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7"
+}

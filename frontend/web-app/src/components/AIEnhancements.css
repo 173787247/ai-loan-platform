@@ -1,0 +1,1030 @@
+/* AI功能增强组件样式 */
+.ai-enhancements {
+  padding: 30px;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  color: white;
+}
+
+.ai-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.ai-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ai-header p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ai-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 模型管理区域 */
+.models-section {
+  margin-bottom: 50px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.section-header h2 {
+  color: #4ecdc4;
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+.add-model-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-model-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.model-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.model-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-color: #4ecdc4;
+}
+
+.model-card.training {
+  border-color: #ffc107;
+  background: rgba(255, 193, 7, 0.1);
+}
+
+.model-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.model-icon {
+  font-size: 2.5rem;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.model-info {
+  flex: 1;
+}
+
+.model-info h3 {
+  color: white;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.model-description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.model-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.model-metrics {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.metric {
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.metric-value {
+  color: #4ecdc4;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.model-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 80px;
+}
+
+.action-btn.primary {
+  background: #4ecdc4;
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background: #3cb0a8;
+  transform: translateY(-1px);
+}
+
+.action-btn.secondary {
+  background: transparent;
+  color: #4ecdc4;
+  border: 1px solid #4ecdc4;
+}
+
+.action-btn.secondary:hover {
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.action-btn.warning {
+  background: #ffc107;
+  color: #212529;
+}
+
+.action-btn.warning:hover {
+  background: #e0a800;
+  transform: translateY(-1px);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-btn.small {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  min-width: 60px;
+}
+
+/* 性能监控区域 */
+.performance-section {
+  margin-bottom: 50px;
+}
+
+.performance-section h2 {
+  color: #4ecdc4;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.performance-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.performance-card:hover {
+  transform: translateY(-3px);
+  border-color: #4ecdc4;
+}
+
+.performance-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.performance-value {
+  color: #4ecdc4;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* 训练数据管理 */
+.training-data-section {
+  margin-bottom: 50px;
+}
+
+.training-data-section h2 {
+  color: #4ecdc4;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.data-table {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 2fr;
+  gap: 15px;
+  padding: 15px 20px;
+  background: rgba(78, 205, 196, 0.2);
+  font-weight: 600;
+  color: #4ecdc4;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 2fr;
+  gap: 15px;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  align-items: center;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.data-name {
+  color: white;
+  font-weight: 500;
+}
+
+.quality-badge {
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 预测结果 */
+.predictions-section {
+  margin-bottom: 50px;
+}
+
+.predictions-section h2 {
+  color: #4ecdc4;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.predictions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.prediction-item {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.prediction-input {
+  color: white;
+  font-weight: 500;
+}
+
+.prediction-result {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prediction-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.prediction-value {
+  color: #4ecdc4;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.prediction-confidence {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.confidence-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.confidence-value {
+  color: #ffc107;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.prediction-time {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+/* AI配置 */
+.ai-config-section h2 {
+  color: #4ecdc4;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.config-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.config-card h3 {
+  color: #4ecdc4;
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+}
+
+.config-item {
+  margin-bottom: 20px;
+}
+
+.config-item label {
+  display: block;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.config-item select,
+.config-item input[type="number"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #4ecdc4;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+}
+
+.config-item select:focus,
+.config-item input[type="number"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+}
+
+.config-item input[type="range"] {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.threshold-value {
+  color: #4ecdc4;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.config-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4ecdc4;
+  margin-right: 8px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ai-enhancements {
+    padding: 20px 15px;
+  }
+
+  .ai-header h1 {
+    font-size: 2rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .models-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .model-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .model-actions {
+    flex-direction: column;
+  }
+
+  .performance-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .table-cell {
+    justify-content: space-between;
+  }
+
+  .prediction-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .prediction-time {
+    text-align: left;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .model-card {
+    padding: 20px;
+  }
+
+  .model-metrics {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .performance-card {
+    padding: 15px;
+  }
+
+  .prediction-item {
+    padding: 15px;
+  }
+
+  .config-card {
+    padding: 20px;
+  }
+}
+
+/* AI模型训练监控样式 */
+.training-monitor {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.training-status {
+  margin-bottom: 20px;
+}
+
+.training-status h3 {
+  color: #4ecdc4;
+  margin-bottom: 15px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #6c757d;
+}
+
+.status-dot.training {
+  background: #ffc107;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.idle {
+  background: #6c757d;
+}
+
+.status-dot.active {
+  background: #28a745;
+}
+
+.status-dot.inactive {
+  background: #dc3545;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.training-progress {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #44a08d);
+  transition: width 0.3s ease;
+}
+
+.progress-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* AI洞察分析样式 */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.insight-card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.insight-card h3 {
+  color: #4ecdc4;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+}
+
+.trend-chart {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.chart-placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.trend-indicator {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.trend-indicator.up {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.feature-importance {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.feature-name {
+  min-width: 100px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.importance-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.importance-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ecdc4, #44a08d);
+  transition: width 0.3s ease;
+}
+
+.importance-value {
+  min-width: 40px;
+  text-align: right;
+  font-weight: bold;
+  color: #4ecdc4;
+}
+
+.model-comparison {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.comparison-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 4px solid #4ecdc4;
+}
+
+.model-name {
+  font-weight: bold;
+  color: #4ecdc4;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.comparison-metrics {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.comparison-metrics span {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* AI聊天机器人管理样式 */
+.chatbot-management {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.chatbot-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.status-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.status-card h3 {
+  color: #4ecdc4;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.metric {
+  text-align: center;
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 5px;
+}
+
+.metric-value {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #4ecdc4;
+}
+
+.chatbot-controls {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* 模型部署管理样式 */
+.deployment-management {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.deployment-status {
+  margin-bottom: 25px;
+}
+
+.deployment-status h3 {
+  color: #4ecdc4;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.deployment-progress {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+
+.deployment-actions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* AI实验管理样式 */
+.experiment-management {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.experiment-list {
+  margin-bottom: 30px;
+}
+
+.experiment-list h3 {
+  color: #4ecdc4;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.experiment-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.experiment-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+  border-left: 4px solid #4ecdc4;
+}
+
+.experiment-card h4 {
+  color: #4ecdc4;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.experiment-card p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.experiment-metrics {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.experiment-metrics span {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.experiment-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.experiment-creation {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.experiment-creation h3 {
+  color: #4ecdc4;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+}
+
+.creation-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  align-items: end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.9rem;
+}
+
+.form-group input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+}
+
+/* 按钮样式扩展 */
+.btn-success {
+  background: #28a745;
+  color: white;
+  border: 2px solid #28a745;
+}
+
+.btn-success:hover {
+  background: #218838;
+  border-color: #1e7e34;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chatbot-status {
+    grid-template-columns: 1fr;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .experiment-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .creation-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .comparison-metrics {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .experiment-metrics {
+    flex-direction: column;
+    gap: 5px;
+  }
+}

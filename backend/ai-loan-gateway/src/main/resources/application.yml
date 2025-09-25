@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-loan-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://ai-loan-user-service
+          predicates:
+            - Path=/api/users/**
+        - id: loan-service
+          uri: lb://ai-loan-loan-service
+          predicates:
+            - Path=/api/loans/**
+        - id: risk-service
+          uri: lb://ai-loan-risk-service
+          predicates:
+            - Path=/api/risk/**
+        - id: matching-service
+          uri: lb://ai-loan-matching-service
+          predicates:
+            - Path=/api/matching/**
+        - id: admin-service
+          uri: lb://ai-loan-admin-service
+          predicates:
+            - Path=/api/admin/**
+        - id: ai-service
+          uri: lb://ai-loan-ai-service
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - RewritePath=/api/ai/(?<path>.*), /api/v1/ai/$\{path}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

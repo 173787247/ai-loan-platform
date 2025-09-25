@@ -1,0 +1,94 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Prometheus自身监控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Spring Boot应用监控
+  - job_name: 'ai-loan-gateway'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ai-loan-gateway:8080']
+    scrape_interval: 10s
+
+  - job_name: 'ai-loan-user'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ai-loan-user-service:8080']
+    scrape_interval: 10s
+
+  - job_name: 'ai-loan-loan'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ai-loan-loan-service:8080']
+    scrape_interval: 10s
+
+  - job_name: 'ai-loan-risk'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ai-loan-risk-service:8080']
+    scrape_interval: 10s
+
+  - job_name: 'ai-loan-matching'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ai-loan-matching-service:8080']
+    scrape_interval: 10s
+
+  - job_name: 'ai-loan-admin'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ai-loan-admin-service:8080']
+    scrape_interval: 10s
+
+  # AI服务监控
+  - job_name: 'ai-loan-ai-service'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['ai-loan-ai-service:8000']
+    scrape_interval: 10s
+
+  # 数据库监控
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['ai-loan-mysql:3306']
+    scrape_interval: 30s
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['ai-loan-redis:6379']
+    scrape_interval: 30s
+
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['ai-loan-mongodb:27017']
+    scrape_interval: 30s
+
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['ai-loan-elasticsearch:9200']
+    scrape_interval: 30s
+
+  # 系统监控
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s

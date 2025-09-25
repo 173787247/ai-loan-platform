@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>测试页面</title>
+</head>
+<body>
+    <div id="root">
+        <h1>测试页面</h1>
+        <p>如果您能看到这个页面，说明HTML可以正常显示。</p>
+        <p>当前时间: <span id="time"></span></p>
+    </div>
+    
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        console.log('测试页面JavaScript已执行');
+    </script>
+</body>
+</html>

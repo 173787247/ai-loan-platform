@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端格式化调试</title>
+    <style>
+        .message-text {
+            line-height: 1.4;
+            word-wrap: break-word;
+            white-space: pre-line;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .message-text div {
+            margin-bottom: 2px;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h2>前端格式化调试测试</h2>
+        
+        <h3>测试1: 使用 split('\n').map() 方法</h3>
+        <div class="message-text" id="test1"></div>
+        
+        <h3>测试2: 直接使用 white-space: pre-line</h3>
+        <div class="message-text" id="test2"></div>
+        
+        <h3>测试3: 使用 innerHTML 直接插入</h3>
+        <div class="message-text" id="test3"></div>
+    </div>
+
+    <script>
+        // 模拟AI回复内容
+        const aiResponse = `💰 **100万个人信用贷款银行推荐**
+==================================================
+
+🎯 **100万贷款推荐分析**
+-----------------------------------
+
+🏆 **首选推荐：建设银行**
+------------------------------
+✅ 额度支持：1-100万（最高）
+✅ 利率范围：4.0%-11.5%
+✅ 审批速度：最快2个工作日
+✅ 申请条件：月收入2500元，工作6个月
+
+📊 **其他银行对比**
+-------------------------
+
+**工商银行**
+  • 额度：1-80万 ❌ 不支持100万
+  • 利率：3.5%-10.5%（最低）
+  • 条件：月收入2000元，工作3个月`;
+
+        // 测试1: 使用 split('\n').map() 方法
+        const test1Element = document.getElementById('test1');
+        const lines = aiResponse.split('\n');
+        console.log('分割后的行数:', lines.length);
+        console.log('前5行:', lines.slice(0, 5));
+        
+        test1Element.innerHTML = lines.map((line, index) => 
+            `<div key="${index}">${line}</div>`
+        ).join('');
+
+        // 测试2: 直接使用 white-space: pre-line
+        const test2Element = document.getElementById('test2');
+        test2Element.textContent = aiResponse;
+
+        // 测试3: 使用 innerHTML 直接插入
+        const test3Element = document.getElementById('test3');
+        test3Element.innerHTML = aiResponse.replace(/\n/g, '<br>');
+    </script>
+</body>
+</html>

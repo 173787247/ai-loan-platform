@@ -1,0 +1,506 @@
+/* 工作流自动化样式 */
+.workflow-automation {
+  padding: 30px;
+  padding-top: 150px; /* 为导航栏留出足够空间 */
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  color: white;
+}
+
+.workflow-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.workflow-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.workflow-header p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+}
+
+.workflow-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.create-btn, .import-btn, .export-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.create-btn {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+}
+
+.create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+.import-btn, .export-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid #4ecdc4;
+}
+
+.import-btn:hover, .export-btn:hover {
+  background: #4ecdc4;
+  transform: translateY(-2px);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.workflow-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.workflows-section h2 {
+  color: #4ecdc4;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.workflows-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+  margin-bottom: 50px;
+}
+
+.workflow-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.workflow-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-color: #4ecdc4;
+}
+
+.workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.workflow-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workflow-title h3 {
+  color: white;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  width: fit-content;
+}
+
+.workflow-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn.run {
+  background: #28a745;
+  color: white;
+}
+
+.action-btn.run:hover {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.action-btn.edit {
+  background: #4ecdc4;
+  color: white;
+}
+
+.action-btn.edit:hover {
+  background: #3cb0a8;
+  transform: translateY(-1px);
+}
+
+.action-btn.toggle {
+  background: #ffc107;
+  color: #212529;
+}
+
+.action-btn.toggle:hover {
+  background: #e0a800;
+  transform: translateY(-1px);
+}
+
+.action-btn.delete {
+  background: #dc3545;
+  color: white;
+}
+
+.action-btn.delete:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.workflow-description {
+  margin-bottom: 20px;
+}
+
+.workflow-description p {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.workflow-details {
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.detail-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  min-width: 80px;
+  margin-right: 10px;
+}
+
+.detail-value {
+  color: white;
+  flex: 1;
+}
+
+.workflow-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  color: #4ecdc4;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+/* 工作流编辑器 */
+.workflow-editor {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-top: 30px;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.editor-header h2 {
+  color: #4ecdc4;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.save-btn, .cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.editor-content {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 12px 15px;
+  border: 2px solid #4ecdc4;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.trigger-list,
+.action-list,
+.condition-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trigger-item,
+.action-item,
+.condition-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trigger-item select,
+.action-item select {
+  flex: 1;
+}
+
+.condition-item input {
+  flex: 1;
+}
+
+.remove-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.add-btn {
+  background: #4ecdc4;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+}
+
+.add-btn:hover {
+  background: #3cb0a8;
+  transform: translateY(-1px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .workflow-automation {
+    padding: 20px 15px;
+  }
+
+  .workflow-header h1 {
+    font-size: 2rem;
+  }
+
+  .workflow-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .create-btn, .import-btn, .export-btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+
+  .workflows-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .workflow-card {
+    padding: 20px;
+  }
+
+  .workflow-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .workflow-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .action-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .workflow-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .workflow-editor {
+    padding: 20px;
+  }
+
+  .editor-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .editor-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .save-btn, .cancel-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .workflow-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .workflow-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .trigger-item,
+  .action-item,
+  .condition-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .remove-btn {
+    align-self: center;
+  }
+}

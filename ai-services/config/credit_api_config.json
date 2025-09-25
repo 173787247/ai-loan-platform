@@ -1,0 +1,51 @@
+{
+  "credit_apis": {
+    "jingdong": {
+      "name": "京东万象",
+      "base_url": "https://way.jd.com",
+      "app_key": "你的京东万象AppKey",
+      "secret": "你的京东万象Secret",
+      "free_quota": 1000,
+      "enabled": true,
+      "endpoints": {
+        "enterprise_credit": "/jisuapi/enterprisecredit",
+        "dishonest_person": "/jisuapi/dishonestperson",
+        "court_execution": "/jisuapi/courtexecution"
+      }
+    },
+    "qichacha": {
+      "name": "企查查",
+      "base_url": "https://api.qichacha.com",
+      "app_key": "",
+      "secret": "",
+      "free_quota": 100,
+      "enabled": false,
+      "endpoints": {
+        "enterprise_info": "/ECIV4/GetBasicDetailsByName",
+        "enterprise_credit": "/ECIV4/GetCreditScore",
+        "enterprise_risk": "/ECIV4/GetRiskInfo"
+      }
+    },
+    "apispace": {
+      "name": "APISpace",
+      "base_url": "https://eolink.o.apispace.com",
+      "api_key": "你的APISpace密钥",
+      "free_quota": 500,
+      "enabled": true,
+      "endpoints": {
+        "enterprise_credit": "/credit-rating/query",
+        "enterprise_info": "/enterprise-info/query"
+      }
+    }
+  },
+  "fallback": {
+    "enabled": true,
+    "mock_data": true,
+    "mock_sources": [
+      "央行征信中心 (模拟)",
+      "百行征信 (模拟)",
+      "芝麻信用 (模拟)",
+      "腾讯征信 (模拟)"
+    ]
+  }
+}

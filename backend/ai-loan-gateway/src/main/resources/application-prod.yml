@@ -1,0 +1,95 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-loan-gateway
+  cloud:
+    discovery:
+      enabled: true
+    gateway:
+      routes:
+        # 用户服务
+        - id: user-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/users/**
+        # 贷款服务
+        - id: loan-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/loans/**
+        # 风险服务
+        - id: risk-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/risk/**
+        # 匹配服务
+        - id: matching-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/matching/**
+        # 管理服务
+        - id: admin-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/admin/**
+        # AI服务 - 直接路由（FastAPI服务）
+        - id: ai-service
+          uri: http://ai-loan-ai-service:8000
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - RewritePath=/api/ai/(?<path>.*), /api/v1/ai/$\{path}
+        # 前端应用
+        - id: web-app
+          uri: http://localhost:3000
+          predicates:
+            - Path=/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+
+# 生产环境配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Eureka客户端配置
+eureka:
+  client:
+    service-url:
+      defaultZone: http://172.18.0.9:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    hostname: ai-loan-gateway
+
+# 网关配置
+spring.cloud.gateway:
+  httpclient:
+    connect-timeout: 10000
+    response-timeout: 30s
+  default-filters:
+    - name: Retry
+      args:
+        retries: 3
+        methods: GET,POST
+        statuses: BAD_GATEWAY,GATEWAY_TIMEOUT

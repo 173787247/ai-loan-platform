@@ -1,0 +1,205 @@
+version: '3.8'
+
+# AI智能助贷招标平台 - 完整部署配置
+# 版本: 1.1.0
+# 最后更新: 2025-09-13
+# 维护者: AI Loan Platform Team
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: ai-loan-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ai_loan_platform
+      MYSQL_USER: ai_loan
+      MYSQL_PASSWORD: ai_loan123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ai-loan-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      timeout: 20s
+      retries: 10
+
+  # Redis缓存
+  redis:
+    image: redis:6.0-alpine
+    container_name: ai-loan-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-loan-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 10s
+      retries: 5
+
+  # MongoDB文档数据库
+  mongodb:
+    image: mongo:5.0
+    container_name: ai-loan-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ai-loan-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      timeout: 10s
+      retries: 5
+
+  # Elasticsearch搜索引擎
+  elasticsearch:
+    image: elasticsearch:7.17.9
+    container_name: ai-loan-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ai-loan-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      timeout: 30s
+      retries: 5
+
+  # RabbitMQ消息队列
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: ai-loan-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ai-loan-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      timeout: 30s
+      retries: 5
+
+  # AI服务 (GPU版本)
+  ai-service:
+    build:
+      context: ./ai-services
+      dockerfile: Dockerfile.gpu
+    container_name: ai-loan-ai-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ai-services/uploads:/app/uploads
+      - ./ai-services/models:/app/models
+    networks:
+      - ai-loan-network
+    depends_on:
+      - mysql
+      - redis
+      - mongodb
+      - elasticsearch
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      timeout: 30s
+      retries: 5
+
+  # API网关
+  gateway:
+    build:
+      context: ./backend/ai-loan-gateway
+      dockerfile: Dockerfile
+    container_name: ai-loan-gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - ai-loan-network
+    depends_on:
+      - ai-service
+      - user-service
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      timeout: 30s
+      retries: 5
+
+  # 用户服务
+  user-service:
+    build:
+      context: ./backend/ai-loan-user
+      dockerfile: Dockerfile
+    container_name: ai-loan-user-service
+    ports:
+      - "8081:8080"
+    networks:
+      - ai-loan-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      timeout: 30s
+      retries: 5
+
+  # Web应用
+  web-app:
+    build:
+      context: ./frontend/web-app
+      dockerfile: Dockerfile
+    container_name: ai-loan-web-app
+    ports:
+      - "3000:80"
+    networks:
+      - ai-loan-network
+    depends_on:
+      - gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      timeout: 10s
+      retries: 3
+
+  # 管理后台
+  admin-app:
+    build:
+      context: ./frontend/admin-app
+      dockerfile: Dockerfile
+    container_name: ai-loan-admin-app
+    ports:
+      - "3001:80"
+    networks:
+      - ai-loan-network
+    depends_on:
+      - gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mysql_data:
+  redis_data:
+  mongodb_data:
+  elasticsearch_data:
+  rabbitmq_data:
+
+networks:
+  ai-loan-network:
+    driver: bridge

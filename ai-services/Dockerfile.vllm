@@ -1,0 +1,66 @@
+# 基于成功案例的VLLM Dockerfile
+# 参考: C:\Users\rchua\Desktop\AI1\Dockerfile
+
+FROM pytorch/pytorch:2.7.0-cuda12.8-cudnn9-devel
+
+WORKDIR /app
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    wget \
+    curl \
+    ninja-build \
+    libpq-dev \
+    tesseract-ocr \
+    tesseract-ocr-chi-sim \
+    libmagic1 \
+    libmagic-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 设置pip镜像源
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 安装基础Python依赖
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install pandas numpy scikit-learn matplotlib lightgbm catboost xgboost \
+    ipykernel transformers datasets peft accelerate bitsandbytes sentencepiece \
+    protobuf tqdm openpyxl python-pptx xlrd xlwt python-magic markdown \
+    beautifulsoup4 lxml asyncpg sentence-transformers pgvector python-dotenv \
+    loguru pydantic fastapi uvicorn pytesseract opencv-python-headless \
+    PyPDF2 python-docx python-multipart
+
+# 卸载预装的torch相关包
+RUN pip uninstall -y torch torchvision torchaudio
+
+# 安装PyTorch Nightly for CUDA 12.8 (RTX 5080兼容)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+
+# 验证PyTorch版本
+RUN python -c "import torch; print(f'PyTorch Version: {torch.__version__}'); print(f'CUDA Version: {torch.version.cuda}')"
+
+# 安装vLLM from source (简化版本，避免编译问题)
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install vllm --no-deps
+
+# 安装vLLM的依赖
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install fsspec filelock pyyaml psutil ray[default] \
+    fastapi uvicorn pydantic transformers tokenizers \
+    accelerate safetensors
+
+# 复制应用代码
+COPY . .
+
+# 设置环境变量
+ENV PYTHONUNBUFFERED=1
+ENV VLLM_FLASH_ATTN_VERSION=2
+ENV MAX_JOBS=4
+
+# 暴露端口
+EXPOSE 8000
+
+# 启动命令
+CMD ["python", "main.py"]

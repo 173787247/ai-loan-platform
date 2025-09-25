@@ -1,0 +1,70 @@
+.compliance-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.compliance-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px;
+}
+
+.compliance-header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.compliance-header p {
+  margin: 0;
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.compliance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.compliance-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.compliance-card:hover {
+  transform: translateY(-3px);
+}
+
+.compliance-card h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.compliance-status {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.compliance-status.compliant {
+  background: #d4edda;
+  color: #155724;
+}
+
+.compliance-status.pending {
+  background: #fff3cd;
+  color: #856404;
+}

@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI智能助贷招标平台 - 演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .status-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .status-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .status-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-running {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .features {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+        
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .feature-item {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: background 0.3s ease;
+        }
+        
+        .feature-item:hover {
+            background: #e9ecef;
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .feature-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .architecture {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .architecture h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .arch-diagram {
+            text-align: center;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: background 0.3s ease;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 AI智能助贷招标平台</h1>
+            <p>基于四层AI架构的金融科技解决方案</p>
+        </div>
+        
+        <div class="status-grid">
+            <div class="status-card">
+                <h3>📊 服务状态</h3>
+                <div class="status-item">
+                    <span>MySQL数据库</span>
+                    <span class="status-badge status-running">运行中</span>
+                </div>
+                <div class="status-item">
+                    <span>Redis缓存</span>
+                    <span class="status-badge status-running">运行中</span>
+                </div>
+                <div class="status-item">
+                    <span>MongoDB文档库</span>
+                    <span class="status-badge status-running">运行中</span>
+                </div>
+                <div class="status-item">
+                    <span>Elasticsearch搜索</span>
+                    <span class="status-badge status-running">运行中</span>
+                </div>
+                <div class="status-item">
+                    <span>RabbitMQ消息队列</span>
+                    <span class="status-badge status-running">运行中</span>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <h3>🔧 应用服务</h3>
+                <div class="status-item">
+                    <span>API网关</span>
+                    <span class="status-badge status-stopped">待启动</span>
+                </div>
+                <div class="status-item">
+                    <span>用户服务</span>
+                    <span class="status-badge status-stopped">待启动</span>
+                </div>
+                <div class="status-item">
+                    <span>招标服务</span>
+                    <span class="status-badge status-stopped">待启动</span>
+                </div>
+                <div class="status-item">
+                    <span>风控服务</span>
+                    <span class="status-badge status-stopped">待启动</span>
+                </div>
+                <div class="status-item">
+                    <span>AI服务</span>
+                    <span class="status-badge status-running">运行中</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <h2>🌟 核心功能特性</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <h4>AI智能分析</h4>
+                    <p>基于深度学习的风险评估和智能匹配</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📋</div>
+                    <h4>招标管理</h4>
+                    <p>全流程招标发布、竞标、评审管理</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <h4>实时匹配</h4>
+                    <p>智能推荐最适合的金融产品方案</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <h4>数据分析</h4>
+                    <p>全面的业务数据分析和可视化</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔒</div>
+                    <h4>安全可靠</h4>
+                    <p>企业级安全防护和数据加密</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <h4>多端支持</h4>
+                    <p>Web、移动端、管理后台全覆盖</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="architecture">
+            <h2>🏗️ 技术架构</h2>
+            <div class="arch-diagram">
+                <pre>
+┌─────────────────────────────────────────────────────────────┐
+│                    AI智能助贷招标平台                        │
+├─────────────────────────────────────────────────────────────┤
+│  前端层: React + TypeScript + Ant Design                   │
+│  ├─ Web应用 (端口:3000)                                    │
+│  └─ 管理后台 (端口:3001)                                   │
+├─────────────────────────────────────────────────────────────┤
+│  网关层: Spring Cloud Gateway (端口:8080)                  │
+├─────────────────────────────────────────────────────────────┤
+│  微服务层: Spring Boot + Spring Cloud                      │
+│  ├─ 用户服务 (端口:8081)                                   │
+│  ├─ 招标服务 (端口:8082)                                   │
+│  ├─ 风控服务 (端口:8083)                                   │
+│  ├─ 匹配服务 (端口:8084)                                   │
+│  ├─ 办理服务 (端口:8085)                                   │
+│  └─ 通知服务 (端口:8086)                                   │
+├─────────────────────────────────────────────────────────────┤
+│  AI服务层: Python + FastAPI (端口:8000)                    │
+│  ├─ 文档处理 (OCR + NLP)                                   │
+│  ├─ 风险评估 (机器学习)                                     │
+│  ├─ 智能匹配 (推荐算法)                                     │
+│  └─ 推荐引擎 (深度学习)                                     │
+├─────────────────────────────────────────────────────────────┤
+│  数据层: MySQL + Redis + MongoDB + Elasticsearch           │
+│  ├─ MySQL: 关系型数据存储                                   │
+│  ├─ Redis: 缓存和会话管理                                   │
+│  ├─ MongoDB: 文档数据存储                                   │
+│  └─ Elasticsearch: 全文搜索                                 │
+├─────────────────────────────────────────────────────────────┤
+│  消息队列: RabbitMQ (端口:5672/15672)                      │
+└─────────────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="http://localhost:8000" class="btn" target="_blank">🤖 AI服务API</a>
+            <a href="http://localhost:3000" class="btn" target="_blank">🌐 访问Web应用</a>
+            <a href="http://localhost:3001" class="btn" target="_blank">⚙️ 管理后台</a>
+            <a href="http://localhost:8080" class="btn" target="_blank">🔌 API网关</a>
+            <a href="http://localhost:15672" class="btn" target="_blank">📨 消息队列</a>
+        </div>
+        
+        <div class="footer">
+            <p>© 2024 AI智能助贷招标平台 | 基于四层AI架构的金融科技解决方案</p>
+        </div>
+    </div>
+    
+    <script>
+        // 实时更新服务状态
+        function updateServiceStatus() {
+            // 这里可以添加AJAX调用来获取实际的服务状态
+            console.log('服务状态检查...');
+        }
+        
+        // 每30秒检查一次服务状态
+        setInterval(updateServiceStatus, 30000);
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('AI智能助贷招标平台演示页面已加载');
+        });
+    </script>
+</body>
+</html>

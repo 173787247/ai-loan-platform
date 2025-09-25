@@ -1,0 +1,212 @@
+.user-management {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 30px;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.page-header p {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 20px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.filter-group.search-group {
+  min-width: 250px;
+  flex: 1;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.user-email,
+.user-phone {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.role-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.role-borrower {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.role-lender {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.role-admin {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.loan-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.stat-label {
+  color: #7f8c8d;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  min-width: 60px;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.total-count {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    min-width: auto;
+  }
+  
+  .filter-group.search-group {
+    min-width: auto;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+  }
+  
+  .loan-stats {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header h1 {
+    font-size: 2rem;
+  }
+  
+  .table {
+    font-size: 0.85rem;
+  }
+  
+  .action-buttons .btn {
+    padding: 8px 12px;
+    font-size: 0.75rem;
+  }
+  
+  .user-info {
+    min-width: 150px;
+  }
+}

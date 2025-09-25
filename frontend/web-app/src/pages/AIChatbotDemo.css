@@ -1,0 +1,829 @@
+/* AI智能客服演示页面样式 */
+.ai-chatbot-demo {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  padding-top: 150px; /* 为导航栏留出足够空间 */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.demo-content {
+  display: grid;
+  grid-template-columns: 300px 1fr 250px;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: calc(100vh - 200px);
+}
+
+.demo-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.demo-header h1 {
+  font-size: 2.5rem;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.demo-header p {
+  font-size: 1.2rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.demo-content {
+  display: grid;
+  grid-template-columns: 300px 1fr 250px;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  height: calc(100vh - 200px);
+}
+
+/* 左侧控制面板 */
+.control-panel {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.preset-questions {
+  margin-top: 20px;
+}
+
+.preset-questions h4 {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.question-btn {
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #555;
+}
+
+.question-btn:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+  color: #667eea;
+}
+
+/* 右侧对话记录 */
+.chat-history {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.history-list {
+  margin-top: 15px;
+}
+
+.empty-history {
+  text-align: center;
+  color: #666;
+  padding: 20px 0;
+}
+
+.empty-history button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.history-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.history-role {
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.history-content {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.history-time {
+  color: #999;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.control-panel h3 {
+  color: #333;
+  margin: 0 0 15px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.session-controls {
+  margin-bottom: 25px;
+}
+
+.session-status {
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.role-selector {
+  margin-bottom: 15px;
+}
+
+.role-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.role-selector select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.role-selector select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.create-session-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.create-session-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.create-session-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 预设问题 */
+.preset-questions {
+  margin-bottom: 25px;
+}
+
+.question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preset-question {
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  word-wrap: break-word;
+}
+
+.preset-question:hover:not(:disabled) {
+  background: #e9ecef;
+  border-color: #667eea;
+  transform: translateX(4px);
+}
+
+.preset-question:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 知识库搜索 */
+.knowledge-search {
+  margin-bottom: 25px;
+}
+
+.search-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.search-btn {
+  padding: 10px 15px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.search-btn:hover {
+  background: #5a6fd8;
+}
+
+.search-results {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-result {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.result-category {
+  background: #667eea;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.result-key {
+  font-weight: 600;
+  color: #333;
+}
+
+.result-content {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-relevance {
+  font-size: 11px;
+  color: #999;
+  text-align: right;
+}
+
+/* 中间聊天区域 */
+.chat-area {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.chat-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.session-info {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #c1c8cd;
+  border-radius: 3px;
+}
+
+/* 消息样式 */
+.message {
+  display: flex;
+  gap: 12px;
+  animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-message {
+  flex-direction: row-reverse;
+}
+
+.user-message .message-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.ai-message .message-content {
+  background: white;
+  color: #333;
+  border-radius: 18px 18px 18px 4px;
+  border: 1px solid #e1e5e9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.message-avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.ai-avatar {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.message-content {
+  max-width: 70%;
+  padding: 15px 18px;
+  position: relative;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.message-role {
+  font-weight: 600;
+}
+
+.message-time {
+  font-size: 11px;
+}
+
+.message-text {
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+/* 特殊消息样式 */
+.welcome-message .message-content {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border-radius: 18px;
+}
+
+.knowledge-used {
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  font-size: 11px;
+  color: #666;
+}
+
+/* 打字指示器 */
+.typing-message .message-content {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 18px 18px 18px 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background: #999;
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typing {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin: 5px 0;
+}
+
+/* 输入区域 */
+.chat-input {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid #e1e5e9;
+}
+
+.input-container {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.message-input {
+  flex: 1;
+  border: 2px solid #e1e5e9;
+  border-radius: 20px;
+  padding: 12px 18px;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+  max-height: 120px;
+  min-height: 44px;
+  font-family: inherit;
+}
+
+.message-input:focus {
+  border-color: #667eea;
+}
+
+.message-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.send-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 右侧会话列表 */
+.session-list {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.session-list h3 {
+  color: #333;
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+.no-sessions {
+  text-align: center;
+  color: #666;
+  padding: 40px 20px;
+}
+
+.no-sessions p {
+  margin: 5px 0;
+}
+
+.sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.session-item {
+  padding: 15px;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.session-item:hover {
+  background: #e9ecef;
+  border-color: #667eea;
+}
+
+.session-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #5a6fd8;
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.session-role {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.session-time {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.session-meta {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* 登录要求 */
+.login-required {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #666;
+}
+
+.login-required h2 {
+  font-size: 2rem;
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.login-required p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* 错误边界样式 */
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  color: #666;
+  padding: 40px;
+}
+
+.error-boundary h2 {
+  font-size: 2rem;
+  margin: 0 0 15px 0;
+  color: #e74c3c;
+}
+
+.error-boundary p {
+  font-size: 1.1rem;
+  margin: 0 0 20px 0;
+}
+
+.error-boundary button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.error-boundary button:hover {
+  transform: translateY(-2px);
+}
+
+.error-boundary details {
+  margin-top: 20px;
+  text-align: left;
+  max-width: 600px;
+}
+
+.error-boundary summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.error-boundary pre {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  padding: 15px;
+  font-size: 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .demo-content {
+    grid-template-columns: 250px 1fr 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .demo-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    height: auto;
+  }
+  
+  .control-panel,
+  .session-list {
+    max-height: 300px;
+  }
+  
+  .chat-area {
+    min-height: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-chatbot-demo {
+    padding: 10px;
+  }
+  
+  .demo-header h1 {
+    font-size: 2rem;
+  }
+  
+  .demo-header p {
+    font-size: 1rem;
+  }
+  
+  .message-content {
+    max-width: 85%;
+  }
+}

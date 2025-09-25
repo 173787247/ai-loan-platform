@@ -1,0 +1,152 @@
+/* Logo测试样式 */
+.logo-test {
+  min-height: calc(100vh - 80px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+}
+
+.test-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.logo-test h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+  color: #4ecdc4;
+}
+
+.test-section {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  margin-bottom: 30px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.test-section h2 {
+  color: #4ecdc4;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+/* 复制导航栏的Logo样式 */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  min-width: 120px;
+  max-width: 200px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbar-logo:hover {
+  color: #4ecdc4;
+  transform: scale(1.05);
+}
+
+.logo-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: 1.1rem;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* 不同屏幕尺寸的测试样式 */
+.navbar-logo.tablet {
+  min-width: 100px;
+  max-width: 150px;
+}
+
+.navbar-logo.tablet .logo-text {
+  font-size: 1rem;
+}
+
+.navbar-logo.mobile {
+  min-width: 80px;
+  max-width: 120px;
+}
+
+.navbar-logo.mobile .logo-text {
+  font-size: 0.9rem;
+}
+
+.navbar-logo.mobile .logo-icon {
+  font-size: 1.5rem;
+}
+
+.navbar-logo.original .logo-text {
+  font-size: 1.1rem;
+}
+
+.test-instructions {
+  background: rgba(78, 205, 196, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.test-instructions h3 {
+  color: #4ecdc4;
+  margin-bottom: 15px;
+}
+
+.test-instructions ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.test-instructions li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .logo-test {
+    padding: 15px;
+  }
+  
+  .test-section {
+    padding: 20px;
+  }
+  
+  .logo-test h1 {
+    font-size: 2rem;
+  }
+  
+  .test-section h2 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-test h1 {
+    font-size: 1.5rem;
+  }
+  
+  .test-section {
+    padding: 15px;
+  }
+  
+  .test-section h2 {
+    font-size: 1rem;
+  }
+}

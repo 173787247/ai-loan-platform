@@ -1,0 +1,98 @@
+{
+  "test_summary": {
+    "total_tests": 10,
+    "passed_tests": 1,
+    "failed_tests": 9,
+    "success_rate": 10.0,
+    "duration_seconds": 3.79866
+  },
+  "test_results": [
+    {
+      "name": "网关健康检查",
+      "status": "FAIL",
+      "response_time": 13.486146926879883,
+      "status_code": 404,
+      "error": "{\"timestamp\":\"2025-09-22T04:03:58.577+00:00\",\"path\":\"/api/health\",\"status\":404,\"error\":\"Not Found\",\"message\":null,\"requestId\":\"dc75e84d-2\"}"
+    },
+    {
+      "name": "AI服务健康检查",
+      "status": "FAIL",
+      "response_time": 13.119697570800781,
+      "status_code": 404,
+      "error": "{\"detail\":\"Not Found\"}"
+    },
+    {
+      "name": "前端应用",
+      "status": "FAIL",
+      "response_time": 0,
+      "status_code": 0,
+      "error": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "管理后台",
+      "status": "PASS",
+      "response_time": 15.388965606689453,
+      "status_code": 200
+    },
+    {
+      "name": "Nginx负载均衡器",
+      "status": "FAIL",
+      "response_time": 15.199899673461914,
+      "status_code": 500,
+      "error": "<html>\r\n<head><title>500 Internal Server Error</title></head>\r\n<body>\r\n<center><h1>500 Internal Server Error</h1></center>\r\n<hr><center>nginx/1.29.1</center>\r\n</body>\r\n</html>\r\n"
+    },
+    {
+      "name": "AI模型状态",
+      "status": "FAIL",
+      "response_time": 15.813350677490234,
+      "status_code": 404,
+      "error": "{\"detail\":\"Not Found\"}"
+    },
+    {
+      "name": "AI模型训练",
+      "status": "FAIL",
+      "response_time": 24.274826049804688,
+      "status_code": 404,
+      "error": "{\"detail\":\"Not Found\"}"
+    },
+    {
+      "name": "AI模型预测",
+      "status": "FAIL",
+      "response_time": 14.994382858276367,
+      "status_code": 404,
+      "error": "{\"detail\":\"Not Found\"}"
+    },
+    {
+      "name": "风险评估",
+      "status": "FAIL",
+      "response_time": 15.434026718139648,
+      "status_code": 404,
+      "error": "{\"detail\":\"Not Found\"}"
+    },
+    {
+      "name": "网关API路由",
+      "status": "FAIL",
+      "response_time": 64.87917900085449,
+      "status_code": 503,
+      "error": "{\"timestamp\":\"2025-09-22T04:04:01.823+00:00\",\"path\":\"/api/ai/status\",\"status\":503,\"error\":\"Service Unavailable\",\"requestId\":\"2b14a45e-3\"}"
+    }
+  ],
+  "performance_results": [
+    {
+      "endpoint": "AI服务健康检查",
+      "avg_time": 16.608357429504395,
+      "min_time": 14.83154296875,
+      "max_time": 28.12480926513672,
+      "success_rate": 0.0
+    },
+    {
+      "endpoint": "网关健康检查",
+      "avg_time": 20.54917812347412,
+      "min_time": 8.015632629394531,
+      "max_time": 31.08525276184082,
+      "success_rate": 0.0
+    },
+    {
+      "endpoint": "前端应用",
+      "avg_time": 0.0,
+      "min_time": 

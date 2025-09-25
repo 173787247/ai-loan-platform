@@ -1,0 +1,102 @@
+groups:
+  - name: ai-loan-platform
+    rules:
+      # 服务可用性告警
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "服务 {{ $labels.job }} 不可用"
+          description: "服务 {{ $labels.job }} 已经不可用超过1分钟"
+
+      # 高CPU使用率告警
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU使用率过高"
+          description: "实例 {{ $labels.instance }} CPU使用率超过80%"
+
+      # 高内存使用率告警
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存使用率过高"
+          description: "实例 {{ $labels.instance }} 内存使用率超过85%"
+
+      # 磁盘空间告警
+      - alert: HighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "磁盘空间不足"
+          description: "实例 {{ $labels.instance }} 磁盘使用率超过90%"
+
+      # 应用响应时间告警
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "应用响应时间过长"
+          description: "应用 {{ $labels.application }} 95%响应时间超过2秒"
+
+      # 错误率告警
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) / rate(http_server_requests_seconds_count[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "错误率过高"
+          description: "应用 {{ $labels.application }} 错误率超过5%"
+
+      # JVM内存告警
+      - alert: HighJVMHeapUsage
+        expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "JVM堆内存使用率过高"
+          description: "应用 {{ $labels.application }} JVM堆内存使用率超过85%"
+
+      # 数据库连接数告警
+      - alert: HighDatabaseConnections
+        expr: hikaricp_connections_active > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "数据库连接数过高"
+          description: "应用 {{ $labels.application }} 数据库连接数超过80"
+
+      # Redis连接数告警
+      - alert: HighRedisConnections
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis连接数过高"
+          description: "Redis连接数超过100"
+
+      # 队列积压告警
+      - alert: QueueBacklog
+        expr: rabbitmq_queue_messages > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "消息队列积压"
+          description: "队列 {{ $labels.queue }} 消息积压超过1000条"

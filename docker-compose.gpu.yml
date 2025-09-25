@@ -1,0 +1,205 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: ai-loan-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ai_loan_platform
+      MYSQL_USER: ai_loan
+      MYSQL_PASSWORD: ai_loan123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ai-loan-network
+
+  # Redis缓存
+  redis:
+    image: redis:6.0-alpine
+    container_name: ai-loan-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-loan-network
+
+  # MongoDB文档数据库
+  mongodb:
+    image: mongo:5.0
+    container_name: ai-loan-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root123
+      MONGO_INITDB_DATABASE: ai_loan_platform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ai-loan-network
+
+  # PostgreSQL向量数据库 (用于RAG)
+  postgresql:
+    image: pgvector/pgvector:pg15
+    container_name: ai-loan-postgresql
+    environment:
+      POSTGRES_DB: ai_loan_rag
+      POSTGRES_USER: ai_loan
+      POSTGRES_PASSWORD: ai_loan123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+      - ./database/init_rag.sql:/docker-entrypoint-initdb.d/init_rag.sql
+    networks:
+      - ai-loan-network
+
+  # Elasticsearch搜索引擎
+  elasticsearch:
+    image: elasticsearch:7.17.9
+    container_name: ai-loan-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ai-loan-network
+
+  # Eureka服务发现服务器
+  eureka:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: ai-loan-eureka
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - EUREKA_SERVER_ENABLE_SELF_PRESERVATION=false
+    networks:
+      - ai-loan-network
+
+  # AI服务 (支持GPU)
+  ai-service:
+    build:
+      context: ./ai-services
+      dockerfile: Dockerfile.vllm
+    container_name: ai-loan-ai-service
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+      - MONGODB_HOST=mongodb
+      - CUDA_VISIBLE_DEVICES=0
+      - OPENAI_API_KEY=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
+      - OPENAI_BASE_URL=https://api.openai.com/v1
+      - OPENAI_MODEL=gpt-4o
+      - DEFAULT_LLM_PROVIDER=openai
+      - DEFAULT_LLM_MODEL=gpt-4o
+    volumes:
+      - ./ai-services:/app
+      - ai_models:/app/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    shm_size: '8gb'
+    depends_on:
+      - mysql
+      - redis
+      - mongodb
+    networks:
+      - ai-loan-network
+
+  # Web应用 - 开发模式（支持热重载）
+  web-app:
+    image: node:20-alpine
+    container_name: ai-loan-web-app
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/web-app:/app
+      - /app/node_modules  # 避免覆盖容器内的node_modules
+    command: sh -c "npm install && npm run build && npx serve -s build -l 3000"
+    environment:
+      - REACT_APP_API_BASE_URL=http://host.docker.internal:8000/api/v1
+    depends_on:
+      - ai-service
+    networks:
+      - ai-loan-network
+
+  # API网关
+  gateway:
+    build:
+      context: ./backend/ai-loan-gateway
+      dockerfile: Dockerfile
+    container_name: ai-loan-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # 用户服务
+  user-service:
+    build:
+      context: ./backend/ai-loan-user
+      dockerfile: Dockerfile
+    container_name: ai-loan-user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # 管理后台
+  admin-app:
+    build:
+      context: ./frontend/admin-dashboard
+      dockerfile: Dockerfile
+    container_name: ai-loan-admin-app
+    ports:
+      - "3001:80"
+    depends_on:
+      - gateway
+    networks:
+      - ai-loan-network
+
+volumes:
+  mysql_data:
+  redis_data:
+  mongodb_data:
+  postgresql_data:
+  elasticsearch_data:
+  ai_models:
+
+networks:
+  ai-loan-network:
+    driver: bridge

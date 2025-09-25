@@ -1,0 +1,372 @@
+/* 移动端优化样式 */
+
+/* 全局移动端优化 */
+@media (max-width: 768px) {
+  /* 基础优化 */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+  
+  /* 只对特定元素禁用选择，保留文字显示 */
+  .btn, .button, button, .nav-link, .navbar-link {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* 输入框和文本区域允许选择 */
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+  
+  /* 确保文字能够正确显示 */
+  h1, h2, h3, h4, h5, h6, p, span, div, .text {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  /* 防止水平滚动 */
+  body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 容器优化 */
+  .container {
+    padding: 0 15px;
+    max-width: 100%;
+  }
+
+  /* 按钮优化 */
+  .btn, .button, button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 20px;
+    font-size: 16px;
+    border-radius: 8px;
+    touch-action: manipulation;
+  }
+
+  /* 链接优化 */
+  a, .link {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    touch-action: manipulation;
+  }
+
+  /* 表单优化 */
+  input, textarea, select {
+    font-size: 16px; /* 防止iOS缩放 */
+    padding: 12px 15px;
+    border-radius: 8px;
+    min-height: 44px;
+    border: 2px solid #e9ecef;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #4ecdc4;
+    box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.2);
+  }
+
+  /* 卡片优化 */
+  .card, .feature-card, .stat-card {
+    margin-bottom: 15px;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 网格布局优化 */
+  .grid, .features-grid, .stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .grid-2, .grid-3, .grid-4 {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* 导航栏优化 */
+  .navbar, .nav-menu {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .nav-link {
+    padding: 12px 20px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  /* 表格优化 */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 600px;
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 10px 8px;
+    white-space: nowrap;
+  }
+
+  /* 图表优化 */
+  .chart-container {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+  }
+
+  /* 模态框优化 */
+  .modal {
+    padding: 20px;
+    margin: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-content {
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  /* 通知优化 */
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+
+  .notification-item {
+    min-width: auto;
+    max-width: none;
+    margin-bottom: 10px;
+  }
+
+  /* 文本优化 */
+  h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* 间距优化 */
+  .section {
+    padding: 30px 15px;
+  }
+
+  .section h2 {
+    margin-bottom: 20px;
+  }
+
+  /* 列表优化 */
+  ul, ol {
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+
+  /* 图片优化 */
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  /* 视频优化 */
+  video {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+
+  /* 滚动优化 */
+  .scroll-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+
+  /* 固定元素优化 */
+  .fixed, .sticky {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+  }
+
+  /* 隐藏移动端不需要的元素 */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* 显示移动端专用元素 */
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+/* 超小屏幕优化 */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  .section {
+    padding: 20px 10px;
+  }
+
+  .card, .feature-card, .stat-card {
+    padding: 15px;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  .btn, .button, button {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  input, textarea, select {
+    font-size: 16px;
+    padding: 10px 12px;
+    min-height: 40px;
+  }
+
+  .nav-link {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+/* 横屏优化 */
+@media (max-width: 768px) and (orientation: landscape) {
+  .navbar {
+    height: 50px;
+  }
+
+  .navbar-container {
+    height: 50px;
+  }
+
+  .section {
+    padding: 20px 15px;
+  }
+
+  .modal {
+    max-height: 80vh;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  /* 增加触摸目标大小 */
+  .btn, .button, button, .nav-link, .feature-card {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* 优化悬停效果 */
+  .btn:hover, .button:hover, button:hover {
+    transform: none;
+  }
+
+  .card:hover, .feature-card:hover {
+    transform: none;
+  }
+
+  /* 优化焦点状态 */
+  .btn:focus, .button:focus, button:focus {
+    outline: 2px solid #4ecdc4;
+    outline-offset: 2px;
+  }
+}
+
+/* 高DPI屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* 优化字体渲染 */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 优化边框 */
+  .card, .feature-card, .stat-card {
+    border: 0.5px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 深色模式移动端优化 */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+  .card, .feature-card, .stat-card {
+    background: rgba(44, 62, 80, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  input, textarea, select {
+    background: rgba(44, 62, 80, 0.9);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: #4ecdc4;
+    background: rgba(44, 62, 80, 1);
+  }
+}

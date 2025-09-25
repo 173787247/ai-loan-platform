@@ -1,0 +1,94 @@
+{
+  "total_tests": 5,
+  "success_count": 2,
+  "failure_count": 3,
+  "success_rate": 40.0,
+  "total_time": 0.2295825481414795,
+  "results": {
+    "健康检查": {
+      "success": true,
+      "data": {
+        "status": "healthy",
+        "service": "ai-loan-ai-service",
+        "version": "1.0.0",
+        "gpu_available": false,
+        "gpu_count": 0,
+        "timestamp": "2025-09-13T17:18:11.102438"
+      }
+    },
+    "风险评估": {
+      "success": false,
+      "error": "'total_risk_score'"
+    },
+    "智能匹配": {
+      "success": true,
+      "data": {
+        "success": true,
+        "message": "智能匹配完成",
+        "data": {
+          "tender_id": 1,
+          "matching_time": "2025-09-13T17:18:11.213890",
+          "total_products": 2,
+          "matched_products": 2,
+          "recommendations": [
+            {
+              "rank": 1,
+              "product_id": null,
+              "product_name": null,
+              "matching_score": 0.85,
+              "reasons": [
+                "高度匹配您的需求",
+                "贷款金额500000万在100000-1000000万范围内",
+                "贷款期限24个月在0-inf个月范围内",
+                "产品特色: 快速审批, 灵活还款"
+              ],
+              "estimated_rate": "0.0%-0.0%",
+              "risk_level": "未知"
+            },
+            {
+              "rank": 2,
+              "product_id": null,
+              "product_name": null,
+              "matching_score": 0.85,
+              "reasons": [
+                "高度匹配您的需求",
+                "贷款金额500000万在200000-2000000万范围内",
+                "贷款期限24个月在0-inf个月范围内",
+                "产品特色: 专项用途, 长期限"
+              ],
+              "estimated_rate": "0.0%-0.0%",
+              "risk_level": "未知"
+            }
+          ],
+          "matching_analysis": {
+            "quality": "优秀",
+            "message": "找到了多个高度匹配的贷款产品",
+            "average_score": "85.0%",
+            "best_score": "85.0%",
+            "total_matches": 2
+          },
+          "user_profile": {
+            "risk_profile": "中等风险客户",
+            "preference_profile": "平衡型",
+            "financial_profile": "大型企业",
+            "business_profile": "新创企业"
+          },
+          "next_steps": [
+            "查看详细产品信息",
+            "比较不同产品的优缺点",
+            "准备申请材料",
+            "联系银行或金融机构"
+          ]
+        }
+      }
+    },
+    "推荐引擎": {
+      "success": false,
+      "error": "'popular_recommendations'"
+    },
+    "文档处理": {
+      "success": false,
+      "error": "HTTP 500"
+    }
+  }
+}

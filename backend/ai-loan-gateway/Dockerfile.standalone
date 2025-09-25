@@ -1,0 +1,40 @@
+# 独立构建 - API网关服务
+FROM maven:3.8.6-openjdk-11-slim AS build
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制父POM文件
+COPY ../../pom.xml ./pom.xml
+
+# 安装父POM到本地仓库
+RUN mvn install -N
+
+# 复制当前模块的pom.xml
+COPY backend/ai-loan-gateway/pom.xml ./backend/ai-loan-gateway/pom.xml
+
+# 复制源代码和配置文件
+COPY backend/ai-loan-gateway/src ./backend/ai-loan-gateway/src
+COPY backend/ai-loan-gateway/src/main/resources/application-prod.yml ./backend/ai-loan-gateway/src/main/resources/application-prod.yml
+
+# 构建应用
+WORKDIR /app/backend/ai-loan-gateway
+RUN mvn clean package -DskipTests
+
+# 运行阶段
+FROM openjdk:11-jre-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制构建的jar文件
+COPY --from=build /app/backend/ai-loan-gateway/target/ai-loan-gateway-1.1.0.jar app.jar
+
+# 暴露端口
+EXPOSE 8080
+
+# 设置JVM参数
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -Dspring.profiles.active=prod"
+
+# 启动应用
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

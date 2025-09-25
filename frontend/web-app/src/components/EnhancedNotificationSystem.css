@@ -1,0 +1,313 @@
+/* 增强通知系统样式 */
+.enhanced-notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  max-width: 400px;
+  pointer-events: none;
+}
+
+.enhanced-notification-item {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  margin-bottom: 12px;
+  padding: 16px;
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid #e0e0e0;
+  transition: all 0.3s ease;
+  animation: slideInRight 0.3s ease;
+}
+
+.enhanced-notification-item:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.enhanced-notification-item.read {
+  opacity: 0.7;
+}
+
+.enhanced-notification-item.unread {
+  border-left-color: #007bff;
+  background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+}
+
+.enhanced-notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.enhanced-notification-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.enhanced-notification-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.enhanced-notification-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.enhanced-notification-message {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.enhanced-notification-time {
+  font-size: 11px;
+  color: #999;
+  font-weight: 500;
+}
+
+.enhanced-notification-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.enhanced-notification-mark-read,
+.enhanced-notification-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  color: #666;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.enhanced-notification-mark-read:hover {
+  background-color: #e8f5e8;
+  color: #28a745;
+}
+
+.enhanced-notification-close:hover {
+  background-color: #ffeaea;
+  color: #dc3545;
+}
+
+.enhanced-notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.enhanced-notification-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  animation: progressBar linear forwards;
+  transform-origin: left;
+}
+
+/* 通知类型样式 */
+.enhanced-notification-success {
+  border-left-color: #28a745;
+  background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+}
+
+.enhanced-notification-success .enhanced-notification-icon {
+  color: #28a745;
+}
+
+.enhanced-notification-error {
+  border-left-color: #dc3545;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.enhanced-notification-error .enhanced-notification-icon {
+  color: #dc3545;
+}
+
+.enhanced-notification-warning {
+  border-left-color: #ffc107;
+  background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%);
+}
+
+.enhanced-notification-warning .enhanced-notification-icon {
+  color: #ffc107;
+}
+
+.enhanced-notification-info {
+  border-left-color: #17a2b8;
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+}
+
+.enhanced-notification-info .enhanced-notification-icon {
+  color: #17a2b8;
+}
+
+/* 通知设置样式 */
+.notification-settings {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin: 20px 0;
+}
+
+.notification-settings h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.preference-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.preference-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.preference-item:hover {
+  background-color: #f8f9fa;
+}
+
+.preference-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #007bff;
+  cursor: pointer;
+}
+
+.preference-item input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.preference-item span {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+/* 动画 */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes progressBar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .enhanced-notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .enhanced-notification-item {
+    margin-bottom: 8px;
+    padding: 12px;
+  }
+  
+  .enhanced-notification-title {
+    font-size: 13px;
+  }
+  
+  .enhanced-notification-message {
+    font-size: 12px;
+  }
+  
+  .enhanced-notification-actions {
+    flex-direction: row;
+  }
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .enhanced-notification-item {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-left-color: #4a5568;
+  }
+  
+  .enhanced-notification-item.unread {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    border-left-color: #3182ce;
+  }
+  
+  .enhanced-notification-title {
+    color: #e2e8f0;
+  }
+  
+  .enhanced-notification-message {
+    color: #a0aec0;
+  }
+  
+  .enhanced-notification-time {
+    color: #718096;
+  }
+  
+  .enhanced-notification-mark-read,
+  .enhanced-notification-close {
+    color: #a0aec0;
+  }
+  
+  .notification-settings {
+    background: #2d3748;
+    color: #e2e8f0;
+  }
+  
+  .notification-settings h3 {
+    color: #e2e8f0;
+  }
+  
+  .preference-item span {
+    color: #e2e8f0;
+  }
+  
+  .preference-item:hover {
+    background-color: #4a5568;
+  }
+}

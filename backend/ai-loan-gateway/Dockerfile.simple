@@ -1,0 +1,22 @@
+# 简化版API网关Dockerfile
+FROM nginx:alpine
+
+# 复制Spring Boot应用jar文件（如果存在）
+COPY target/ai-loan-gateway-1.1.0.jar /app/app.jar 2>/dev/null || echo "JAR file not found, using nginx placeholder"
+
+# 创建启动脚本
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'if [ -f /app/app.jar ]; then' >> /start.sh && \
+    echo '  echo "Starting Spring Boot application..."' >> /start.sh && \
+    echo '  java -jar /app/app.jar' >> /start.sh && \
+    echo 'else' >> /start.sh && \
+    echo '  echo "JAR file not found, starting nginx placeholder..."' >> /start.sh && \
+    echo '  nginx -g "daemon off;"' >> /start.sh && \
+    echo 'fi' >> /start.sh && \
+    chmod +x /start.sh
+
+# 暴露端口
+EXPOSE 8080
+
+# 启动应用
+CMD ["/start.sh"]

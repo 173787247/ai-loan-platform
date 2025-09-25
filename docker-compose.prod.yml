@@ -1,0 +1,285 @@
+version: '3.8'
+
+services:
+  # 数据库服务
+  mysql:
+    image: mysql:8.0
+    container_name: ai-loan-mysql-prod
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ailoan123}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ai_loan_platform}
+      MYSQL_USER: ${MYSQL_USER:-ailoan}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ailoan123}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:6.0-alpine
+    container_name: ai-loan-redis-prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # Eureka服务发现服务器
+  eureka:
+    image: springcloud/eureka:latest
+    container_name: ai-loan-eureka-prod
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=false
+      - EUREKA_CLIENT_FETCH_REGISTRY=false
+      - EUREKA_SERVER_ENABLE_SELF_PRESERVATION=false
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:5.0
+    container_name: ai-loan-mongodb-prod
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-ailoan}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-ailoan123}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-ai_loan_platform}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:7.17.9
+    container_name: ai-loan-elasticsearch-prod
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # AI服务
+  ai-service:
+    build:
+      context: ./ai-services
+      dockerfile: Dockerfile.gpu
+    container_name: ai-loan-ai-service-prod
+    ports:
+      - "8000:8000"
+    volumes:
+      - ai_models:/app/models
+      - ai_uploads:/app/uploads
+    env_file:
+      - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CUDA_VISIBLE_DEVICES=0
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # 网关服务
+  gateway:
+    build:
+      context: ./backend/ai-loan-gateway
+      dockerfile: Dockerfile.standalone
+    container_name: ai-loan-gateway-prod
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/ai-loan-gateway/src/main/resources/application-prod.yml:/app/application-prod.yml:ro
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=-Xms512m -Xmx1024m -Dspring.profiles.active=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ai_loan_platform
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-ailoan}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-ailoan123}
+    depends_on:
+      - mysql
+      - redis
+      - ai-service
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # 用户服务
+  user-service:
+    build:
+      context: ./backend/ai-loan-user
+      dockerfile: Dockerfile.standalone
+    container_name: ai-loan-user-service-prod
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ai_loan_platform
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-ailoan}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-ailoan123}
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # 贷款服务
+  loan-service:
+    build:
+      context: ./backend/ai-loan-loan
+      dockerfile: Dockerfile.standalone
+    container_name: ai-loan-loan-service-prod
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ai_loan_platform
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-ailoan}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-ailoan123}
+    depends_on:
+      - mysql
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # 风险服务
+  risk-service:
+    build:
+      context: ./backend/ai-loan-risk
+      dockerfile: Dockerfile.standalone
+    container_name: ai-loan-risk-service-prod
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ai_loan_platform
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-ailoan}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-ailoan123}
+    depends_on:
+      - mysql
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # 匹配服务
+  matching-service:
+    build:
+      context: ./backend/ai-loan-matching
+      dockerfile: Dockerfile.standalone
+    container_name: ai-loan-matching-service-prod
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ai_loan_platform
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-ailoan}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-ailoan123}
+    depends_on:
+      - mysql
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # 管理服务
+  admin-service:
+    build:
+      context: ./backend/ai-loan-admin
+      dockerfile: Dockerfile.standalone
+    container_name: ai-loan-admin-service-prod
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/ai_loan_platform
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-ailoan}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-ailoan123}
+    depends_on:
+      - mysql
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # 前端应用
+  web-app:
+    build:
+      context: ./frontend/web-app
+      dockerfile: Dockerfile.prod
+    container_name: ai-loan-web-app-prod
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_BASE_URL=http://localhost:8080/api
+      - REACT_APP_AI_SERVICE_URL=http://localhost:8000/api/v1
+    depends_on:
+      - gateway
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # 管理后台
+  admin-app:
+    build:
+      context: ./admin-app
+      dockerfile: Dockerfile
+    container_name: ai-loan-admin-app-prod
+    ports:
+      - "3001:80"
+    depends_on:
+      - gateway
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+  # Nginx负载均衡器
+  nginx:
+    image: nginx:alpine
+    container_name: ai-loan-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - web-app
+      - admin-app
+      - gateway
+    networks:
+      - ai-loan-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+  mongodb_data:
+  elasticsearch_data:
+  ai_models:
+  ai_uploads:
+
+networks:
+  ai-loan-network:
+    driver: bridge

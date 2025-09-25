@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ai-loan-ngrok
+    command: 
+      - "http"
+      - "host.docker.internal:3000"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+    ports:
+      - "4040:4040"  # ngrok web interface
+    networks:
+      - ai-loan-network
+
+networks:
+  ai-loan-network:
+    external: true

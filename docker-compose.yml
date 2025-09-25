@@ -1,0 +1,282 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: ai-loan-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ai_loan_platform
+      MYSQL_USER: ai_loan
+      MYSQL_PASSWORD: ai_loan123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ai-loan-network
+
+  # Redis缓存
+  redis:
+    image: redis:6.0-alpine
+    container_name: ai-loan-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-loan-network
+
+  # MongoDB文档数据库
+  mongodb:
+    image: mongo:5.0
+    container_name: ai-loan-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root123
+      MONGO_INITDB_DATABASE: ai_loan_platform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ai-loan-network
+
+  # PostgreSQL向量数据库
+  postgresql:
+    image: pgvector/pgvector:pg15
+    container_name: ai-loan-postgresql
+    environment:
+      POSTGRES_DB: ai_loan_rag
+      POSTGRES_USER: ai_loan
+      POSTGRES_PASSWORD: ai_loan123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    networks:
+      - ai-loan-network
+
+  # Elasticsearch搜索引擎
+  elasticsearch:
+    image: elasticsearch:7.17.9
+    container_name: ai-loan-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms16g -Xmx16g"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          memory: 20g
+        reservations:
+          memory: 16g
+    networks:
+      - ai-loan-network
+
+  # RabbitMQ消息队列
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: ai-loan-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ai-loan-network
+
+  # API网关
+  gateway:
+    build:
+      context: .
+      dockerfile: ./backend/ai-loan-gateway/Dockerfile.standalone
+    container_name: ai-loan-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # 用户服务
+  user-service:
+    build:
+      context: .
+      dockerfile: ./backend/ai-loan-user/Dockerfile.standalone
+    container_name: ai-loan-user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # 贷款申请服务
+  loan-service:
+    build:
+      context: .
+      dockerfile: ./backend/ai-loan-loan/Dockerfile.standalone
+    container_name: ai-loan-loan-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # 风险评估服务
+  risk-service:
+    build:
+      context: .
+      dockerfile: ./backend/ai-loan-risk/Dockerfile.standalone
+    container_name: ai-loan-risk-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # 智能匹配服务
+  matching-service:
+    build:
+      context: .
+      dockerfile: ./backend/ai-loan-matching/Dockerfile.standalone
+    container_name: ai-loan-matching-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # 管理后台服务
+  admin-service:
+    build:
+      context: .
+      dockerfile: ./backend/ai-loan-admin/Dockerfile.standalone
+    container_name: ai-loan-admin-service
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - ai-loan-network
+
+  # AI服务
+  ai-service:
+    build:
+      context: ./ai-services
+      dockerfile: Dockerfile
+    container_name: ai-loan-ai-service
+    ports:
+      - "8000:8000"
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+      - MONGODB_HOST=mongodb
+      # LLM配置 - 使用OpenAI GPT-4o
+      - DEFAULT_LLM_PROVIDER=openai
+      - OPENAI_API_KEY=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
+      - OPENAI_BASE_URL=https://api.openai.com/v1
+      - OPENAI_MODEL=gpt-4o
+    deploy:
+      resources:
+        limits:
+          memory: 200g
+        reservations:
+          memory: 100g
+    depends_on:
+      - mysql
+      - redis
+      - mongodb
+    networks:
+      - ai-loan-network
+
+  # AI智能体Web接口
+  ai-agent:
+    build:
+      context: ./ai-services
+      dockerfile: Dockerfile
+    container_name: ai-loan-ai-agent
+    ports:
+      - "8001:8001"
+    environment:
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+      - MONGODB_HOST=mongodb
+      - AI_SERVICE_URL=http://ai-loan-ai-service:8000
+    command: python agent_web_interface.py
+    depends_on:
+      - ai-service
+    networks:
+      - ai-loan-network
+
+  # Web应用
+  web-app:
+    build:
+      context: ./frontend/web-app
+      dockerfile: Dockerfile
+    container_name: ai-loan-web-app
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+    networks:
+      - ai-loan-network
+
+  # 管理后台
+  admin-app:
+    build:
+      context: ./frontend/admin-app
+      dockerfile: Dockerfile
+    container_name: ai-loan-admin-app
+    ports:
+      - "3001:80"
+    depends_on:
+      - gateway
+    networks:
+      - ai-loan-network
+
+volumes:
+  mysql_data:
+  redis_data:
+  mongodb_data:
+  postgresql_data:
+  elasticsearch_data:
+  rabbitmq_data:
+
+networks:
+  ai-loan-network:
+    driver: bridge

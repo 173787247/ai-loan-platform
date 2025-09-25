@@ -1,0 +1,39 @@
+# 独立构建 - 用户服务
+FROM maven:3.8.6-openjdk-11-slim AS build
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制父POM文件
+COPY ../../pom.xml ./pom.xml
+
+# 安装父POM到本地仓库
+RUN mvn install -N
+
+# 复制当前模块的pom.xml
+COPY backend/ai-loan-user/pom.xml ./backend/ai-loan-user/pom.xml
+
+# 复制源代码
+COPY backend/ai-loan-user/src ./backend/ai-loan-user/src
+
+# 构建应用
+WORKDIR /app/backend/ai-loan-user
+RUN mvn clean package -DskipTests
+
+# 运行阶段
+FROM openjdk:11-jre-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制构建的jar文件
+COPY --from=build /app/backend/ai-loan-user/target/ai-loan-user-1.1.0.jar app.jar
+
+# 暴露端口
+EXPOSE 8080
+
+# 设置JVM参数
+ENV JAVA_OPTS="-Xms512m -Xmx1024m -Dspring.profiles.active=docker"
+
+# 启动应用
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

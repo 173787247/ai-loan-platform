@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 开发模式Web应用 - 实时热重载
+  web-app-dev:
+    image: node:20-alpine
+    container_name: ai-loan-web-app-dev
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/web-app:/app
+      - /app/node_modules  # 避免覆盖容器内的node_modules
+    command: sh -c "npm install && npm start"
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # 支持文件监听
+      - FAST_REFRESH=true
+    networks:
+      - ai-loan-network
+
+  # 其他服务保持不变
+  mysql:
+    image: mysql:8.0
+    container_name: ai-loan-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: ai_loan_platform
+      MYSQL_USER: ai_loan
+      MYSQL_PASSWORD: ai_loan123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ai-loan-network
+
+  redis:
+    image: redis:6.0-alpine
+    container_name: ai-loan-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ai-loan-network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  ai-loan-network:
+    driver: bridge

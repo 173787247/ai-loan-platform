@@ -1,0 +1,862 @@
+/* 移动端优化样式 */
+.mobile-optimized-app {
+  position: relative;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.mobile-optimized-app.mobile {
+  padding-bottom: 80px; /* 为底部导航留出空间 */
+}
+
+/* PWA安装提示 */
+.pwa-install-prompt {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  z-index: 10000;
+  padding: 12px 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s ease;
+}
+
+.install-prompt-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.install-prompt-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.install-prompt-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.install-prompt-text h3 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.install-prompt-text p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+.install-prompt-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.install-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.install-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 移动端底部导航 */
+.mobile-bottom-navigation {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 60px;
+}
+
+.nav-tab:hover {
+  background: #f8f9fa;
+}
+
+.nav-tab.active {
+  color: #007bff;
+}
+
+.nav-tab.active .nav-icon {
+  transform: scale(1.1);
+}
+
+.nav-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+  transition: transform 0.2s ease;
+}
+
+.nav-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* 移动端状态栏 */
+.mobile-status-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #000;
+  color: white;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1001;
+  padding-top: calc(8px + env(safe-area-inset-top));
+}
+
+.status-left,
+.status-center,
+.status-right {
+  flex: 1;
+}
+
+.status-center {
+  text-align: center;
+}
+
+.status-right {
+  text-align: right;
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+}
+
+.network-status.online {
+  color: #28a745;
+}
+
+.network-status.offline {
+  color: #dc3545;
+}
+
+.battery-level {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 主要内容区域 */
+.mobile-main-content {
+  padding-top: 40px; /* 为状态栏留出空间 */
+  min-height: calc(100vh - 120px); /* 减去状态栏和底部导航的高度 */
+}
+
+/* 移动端浮动操作按钮 */
+.mobile-fab-container {
+  position: fixed;
+  bottom: 90px; /* 在底部导航上方 */
+  right: 20px;
+  z-index: 999;
+}
+
+.fab-actions {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeInUp 0.3s ease;
+}
+
+.fab-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #333;
+}
+
+.fab-action:hover {
+  transform: translateX(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.fab-action-icon {
+  font-size: 16px;
+}
+
+.fab-action-label {
+  font-weight: 500;
+}
+
+.mobile-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-fab:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.5);
+}
+
+.mobile-fab.expanded {
+  transform: rotate(45deg);
+}
+
+.fab-icon {
+  transition: transform 0.3s ease;
+}
+
+/* 移动端键盘适配 */
+.mobile-keyboard-spacer {
+  height: 0;
+  transition: height 0.3s ease;
+}
+
+/* 触摸优化 */
+.mobile-optimized-app.mobile * {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.mobile-optimized-app.mobile input,
+.mobile-optimized-app.mobile textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* 触摸目标大小优化 */
+.mobile-optimized-app.mobile button,
+.mobile-optimized-app.mobile .clickable {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* 滚动优化 */
+.mobile-optimized-app.mobile {
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* 动画 */
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .mobile-main-content {
+    padding-top: 35px;
+  }
+  
+  .mobile-bottom-navigation {
+    padding-bottom: 0;
+  }
+  
+  .nav-tab {
+    padding: 6px 2px;
+    min-height: 55px;
+  }
+  
+  .nav-icon {
+    font-size: 18px;
+  }
+  
+  .nav-label {
+    font-size: 10px;
+  }
+  
+  .mobile-fab-container {
+    bottom: 85px;
+    right: 15px;
+  }
+  
+  .mobile-fab {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 360px) {
+  .install-prompt-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .install-prompt-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .nav-label {
+    font-size: 9px;
+  }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-bottom-navigation {
+    display: none;
+  }
+  
+  .mobile-optimized-app.mobile {
+    padding-bottom: 0;
+  }
+  
+  .mobile-fab-container {
+    bottom: 20px;
+  }
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .mobile-optimized-app {
+    background: #1a1a1a;
+  }
+  
+  .mobile-bottom-navigation {
+    background: #2d2d2d;
+    border-top-color: #404040;
+  }
+  
+  .nav-tab {
+    color: #e0e0e0;
+  }
+  
+  .nav-tab.active {
+    color: #4dabf7;
+  }
+  
+  .fab-action {
+    background: #2d2d2d;
+    color: #e0e0e0;
+  }
+  
+  .mobile-status-bar {
+    background: #000;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .mobile-fab {
+    border: 2px solid white;
+  }
+  
+  .nav-tab.active {
+    background: #007bff;
+    color: white;
+  }
+  
+  .fab-action {
+    border: 1px solid #ddd;
+  }
+}
+
+/* 减少动画模式 */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-fab,
+  .nav-tab,
+  .fab-action,
+  .install-prompt-content {
+    transition: none;
+  }
+  
+  .fab-actions {
+    animation: none;
+  }
+  
+  .pwa-install-prompt {
+    animation: none;
+  }
+}
+
+/* 性能监控样式 */
+.performance-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.performance-monitor {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  z-index: 1001;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
+}
+
+.performance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.performance-header h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.performance-header button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.performance-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.metric-label {
+  color: #ccc;
+}
+
+.metric-value {
+  color: #4ecdc4;
+  font-weight: bold;
+}
+
+/* 离线模式样式 */
+.offline-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ffc107;
+  color: #000;
+  padding: 8px 16px;
+  text-align: center;
+  z-index: 9999;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.offline-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.offline-data-count {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.sync-status {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: rgba(40, 167, 69, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  z-index: 1000;
+}
+
+/* 键盘适配样式 */
+.keyboard-spacer {
+  transition: height 0.3s ease;
+}
+
+/* 主题切换样式 */
+.theme-switcher {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.theme-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.theme-btn.light {
+  background: #fff;
+  color: #333;
+}
+
+.theme-btn.dark {
+  background: #333;
+  color: #fff;
+}
+
+.theme-btn:hover {
+  transform: scale(1.1);
+}
+
+.auto-theme {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* 网络状态样式 */
+.network-status {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.network-status.online {
+  background: rgba(40, 167, 69, 0.9);
+  color: white;
+}
+
+.network-status.offline {
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+}
+
+.status-icon {
+  font-size: 14px;
+}
+
+.connection-info {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* 快捷操作面板样式 */
+.quick-actions-panel {
+  position: fixed;
+  bottom: 100px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.quick-actions-toggle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.quick-actions-toggle:hover {
+  transform: scale(1.1);
+}
+
+.quick-actions-grid {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  animation: slideUp 0.3s ease;
+}
+
+.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+  min-width: 60px;
+}
+
+.quick-action-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.action-icon {
+  font-size: 20px;
+}
+
+.action-label {
+  font-size: 10px;
+  color: #333;
+  font-weight: 600;
+}
+
+/* 手势识别样式 */
+.gesture-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  font-size: 18px;
+  z-index: 10000;
+  animation: fadeInOut 1s ease;
+}
+
+/* 动画效果 */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* 移动端特定优化 */
+@media (max-width: 768px) {
+  .performance-monitor {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+  }
+  
+  .theme-switcher {
+    bottom: 90px;
+    right: 10px;
+  }
+  
+  .quick-actions-panel {
+    bottom: 90px;
+    left: 10px;
+  }
+  
+  .network-status {
+    top: 10px;
+    left: 10px;
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+  
+  .quick-action-btn {
+    min-width: 50px;
+    padding: 8px;
+  }
+  
+  .action-icon {
+    font-size: 16px;
+  }
+  
+  .action-label {
+    font-size: 9px;
+  }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .mobile-bottom-navigation {
+    display: none;
+  }
+  
+  .mobile-optimized-app.mobile {
+    padding-bottom: 0;
+  }
+  
+  .theme-switcher {
+    bottom: 20px;
+  }
+  
+  .quick-actions-panel {
+    bottom: 20px;
+  }
+}
+
+/* 高分辨率屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .mobile-fab,
+  .theme-btn,
+  .quick-actions-toggle {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .performance-monitor,
+  .quick-actions-grid {
+    backdrop-filter: blur(20px);
+  }
+}
+
+/* 暗色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .quick-actions-grid {
+    background: rgba(0, 0, 0, 0.9);
+  }
+  
+  .quick-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .action-label {
+    color: #fff;
+  }
+  
+  .performance-monitor {
+    background: rgba(0, 0, 0, 0.95);
+  }
+}

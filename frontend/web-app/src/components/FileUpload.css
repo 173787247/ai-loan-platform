@@ -1,0 +1,252 @@
+/* 文件上传组件样式 */
+.file-upload-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.file-upload-modal {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.file-upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  border-radius: 12px 12px 0 0;
+}
+
+.file-upload-header h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.file-upload-content {
+  padding: 24px;
+}
+
+.upload-instructions {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f0f9ff;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.upload-instructions p {
+  margin: 0 0 12px 0;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+.upload-instructions ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #1e40af;
+}
+
+.upload-instructions li {
+  margin-bottom: 4px;
+}
+
+.upload-area {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  margin-bottom: 24px;
+}
+
+.upload-area:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+}
+
+.upload-area.drag-active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: scale(1.02);
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.upload-area p {
+  margin: 8px 0;
+  color: #374151;
+  font-size: 16px;
+}
+
+.upload-hint {
+  color: #6b7280 !important;
+  font-size: 14px !important;
+}
+
+.selected-files {
+  margin-bottom: 24px;
+}
+
+.selected-files h4 {
+  margin: 0 0 12px 0;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.file-icon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.file-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-name {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+.file-size {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.remove-file-btn {
+  background: #fee2e2;
+  border: none;
+  color: #dc2626;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.remove-file-btn:hover {
+  background: #fecaca;
+}
+
+.upload-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.upload-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-btn:hover:not(:disabled) {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.upload-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.cancel-btn {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .file-upload-modal {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .file-upload-content {
+    padding: 16px;
+  }
+  
+  .upload-area {
+    padding: 30px 16px;
+  }
+  
+  .upload-actions {
+    flex-direction: column;
+  }
+  
+  .upload-btn,
+  .cancel-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

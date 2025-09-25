@@ -1,0 +1,556 @@
+/* 区块链集成样式 */
+.blockchain-integration {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.blockchain-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.blockchain-header h2 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.blockchain-header p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* 钱包部分 */
+.wallet-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.wallet-section h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.wallet-disconnected {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.wallet-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.wallet-disconnected p {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.connect-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.connect-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.connect-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wallet-connected {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.wallet-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wallet-address,
+.wallet-balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wallet-address .label,
+.wallet-balance .label {
+  font-weight: 600;
+  color: #666;
+  min-width: 60px;
+}
+
+.wallet-address .value,
+.wallet-balance .value {
+  font-family: 'Monaco', 'Menlo', monospace;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.disconnect-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.disconnect-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* 智能合约部分 */
+.contracts-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.contracts-section h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.contract-actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.contract-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.contract-btn.primary {
+  background: #007bff;
+  color: white;
+}
+
+.contract-btn.primary:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.contract-btn.secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.contract-btn.secondary:hover:not(:disabled) {
+  background: #545b62;
+  transform: translateY(-1px);
+}
+
+.contract-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.contracts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contract-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  background: #fafafa;
+}
+
+.contract-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+}
+
+.contract-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.contract-info h4 {
+  margin: 0 0 4px 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.contract-address {
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.expand-btn {
+  background: none;
+  border: 1px solid #ddd;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+  background: #f0f0f0;
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.contract-details {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+  margin-top: 12px;
+}
+
+.contract-meta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.contract-type,
+.contract-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.contract-type {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.contract-status {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.contract-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.execute-btn,
+.view-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.execute-btn {
+  background: #28a745;
+  color: white;
+}
+
+.execute-btn:hover {
+  background: #218838;
+}
+
+.view-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.view-btn:hover {
+  background: #545b62;
+}
+
+/* 交易记录部分 */
+.transactions-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.transactions-section h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transaction-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.transaction-card:hover {
+  border-color: #007bff;
+  background: white;
+}
+
+.transaction-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.transaction-hash {
+  font-family: 'Monaco', 'Menlo', monospace;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.transaction-status {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.transaction-status.confirmed {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.transaction-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transaction-amount {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.transaction-time {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 区块链功能说明 */
+.blockchain-features {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.blockchain-features h3 {
+  margin: 0 0 24px 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.feature-card {
+  text-align: center;
+  padding: 24px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #007bff;
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.feature-card h4 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.feature-card p {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .blockchain-integration {
+    padding: 16px;
+  }
+  
+  .blockchain-header {
+    padding: 20px;
+  }
+  
+  .blockchain-header h2 {
+    font-size: 2rem;
+  }
+  
+  .wallet-connected {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .contract-actions {
+    flex-direction: column;
+  }
+  
+  .contract-btn {
+    width: 100%;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .transaction-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .transaction-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .blockchain-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .wallet-section,
+  .contracts-section,
+  .transactions-section,
+  .blockchain-features {
+    padding: 16px;
+  }
+  
+  .contract-card {
+    padding: 16px;
+  }
+  
+  .feature-card {
+    padding: 20px;
+  }
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .blockchain-integration {
+    background: #1a1a1a;
+  }
+  
+  .wallet-section,
+  .contracts-section,
+  .transactions-section,
+  .blockchain-features {
+    background: #2d2d2d;
+    color: #e0e0e0;
+  }
+  
+  .wallet-section h3,
+  .contracts-section h3,
+  .transactions-section h3,
+  .blockchain-features h3 {
+    color: #e0e0e0;
+  }
+  
+  .contract-card,
+  .transaction-card {
+    background: #3d3d3d;
+    border-color: #404040;
+  }
+  
+  .feature-card {
+    background: linear-gradient(135deg, #3d3d3d 0%, #2d2d2d 100%);
+    border-color: #404040;
+  }
+  
+  .wallet-address .value,
+  .wallet-balance .value {
+    background: #3d3d3d;
+    color: #e0e0e0;
+  }
+}

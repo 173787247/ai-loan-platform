@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>AI客服API测试页面</h1>
+    
+    <div class="test-section">
+        <h2>1. 测试会话创建</h2>
+        <button onclick="testCreateSession()">创建会话</button>
+        <div id="sessionResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 测试消息发送</h2>
+        <button onclick="testSendMessage()">发送消息</button>
+        <div id="messageResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 测试完整流程</h2>
+        <button onclick="testFullFlow()">完整测试</button>
+        <div id="fullResult" class="result"></div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        
+        async function testCreateSession() {
+            const resultDiv = document.getElementById('sessionResult');
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/chat/session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: 'test_user',
+                        chatbot_role: 'general'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('会话创建响应:', data);
+                
+                if (response.ok) {
+                    sessionId = data.data.session_id;
+                    resultDiv.innerHTML = `<div class="success">✅ 会话创建成功<br>会话ID: ${sessionId}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ 会话创建失败<br>状态码: ${response.status}<br>错误: ${data.message || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                console.error('会话创建错误:', error);
+                resultDiv.innerHTML = `<div class="error">❌ 网络错误: ${error.message}</div>`;
+            }
+        }
+        
+        async function testSendMessage() {
+            const resultDiv = document.getElementById('messageResult');
+            if (!sessionId) {
+                resultDiv.innerHTML = '<div class="error">❌ 请先创建会话</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: '我想申请五十万人民币的信用贷款,能挑几家介绍哪优缺点',
+                        user_info: {
+                            user_id: 'test_user',
+                            username: 'test'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('消息发送响应:', data);
+                
+                if (response.ok) {
+                    const aiResponse = data.data?.response || data.message || data.response || '无回复内容';
+                    resultDiv.innerHTML = `<div class="success">✅ 消息发送成功<br>AI回复长度: ${aiResponse.length} 字符<br>AI回复内容: ${aiResponse.substring(0, 200)}...</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ 消息发送失败<br>状态码: ${response.status}<br>错误: ${data.message || '未知错误'}</div>`;
+                }
+            } catch (error) {
+                console.error('消息发送错误:', error);
+                resultDiv.innerHTML = `<div class="error">❌ 网络错误: ${error.message}</div>`;
+            }
+        }
+        
+        async function testFullFlow() {
+            const resultDiv = document.getElementById('fullResult');
+            resultDiv.innerHTML = '<div>🔄 开始完整测试...</div>';
+            
+            try {
+                // 1. 创建会话
+                await testCreateSession();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 2. 发送消息
+                await testSendMessage();
+                
+                resultDiv.innerHTML += '<div class="success">✅ 完整测试完成</div>';
+            } catch (error) {
+                resultDiv.innerHTML += `<div class="error">❌ 完整测试失败: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

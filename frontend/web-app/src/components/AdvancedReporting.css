@@ -1,0 +1,643 @@
+/* 高级报表系统样式 */
+.advanced-reporting {
+  padding: 30px;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  color: white;
+}
+
+.reporting-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.reporting-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.reporting-header p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 30px;
+}
+
+.reporting-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn.generate {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+}
+
+.action-btn.generate:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+.action-btn.generate:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.action-btn.schedule {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid #4ecdc4;
+}
+
+.action-btn.schedule:hover {
+  background: #4ecdc4;
+  transform: translateY(-2px);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.reporting-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.reports-section, .scheduled-section {
+  margin-bottom: 50px;
+}
+
+.reports-section h2, .scheduled-section h2 {
+  color: #4ecdc4;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.filters select {
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: 2px solid #4ecdc4;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  min-width: 150px;
+}
+
+.filters select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+}
+
+.reports-grid, .scheduled-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
+}
+
+.report-card, .schedule-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.report-card:hover, .schedule-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-color: #4ecdc4;
+}
+
+.card-header, .schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.report-info h3, .schedule-header h3 {
+  color: white;
+  font-size: 1.3rem;
+  margin: 0 0 5px 0;
+}
+
+.report-type {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin: 0 0 8px 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  width: fit-content;
+}
+
+.schedule-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.schedule-status.active {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+}
+
+.schedule-status.inactive {
+  background: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+}
+
+.report-format {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.format-icon {
+  font-size: 1.5rem;
+}
+
+.format-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.card-content, .schedule-content {
+  margin-bottom: 20px;
+}
+
+.report-details, .schedule-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.detail-item, .detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.value {
+  color: white;
+  font-size: 0.9rem;
+}
+
+.report-preview {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.report-preview h4 {
+  color: #4ecdc4;
+  font-size: 1rem;
+  margin: 0 0 10px 0;
+}
+
+.preview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+}
+
+.stat-value {
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.card-actions, .schedule-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-btn.view, .action-btn.download, .action-btn.share,
+.action-btn.edit, .action-btn.toggle, .action-btn.delete {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.action-btn.view {
+  background: #17a2b8;
+  color: white;
+}
+
+.action-btn.view:hover {
+  background: #138496;
+  transform: translateY(-1px);
+}
+
+.action-btn.download {
+  background: #28a745;
+  color: white;
+}
+
+.action-btn.download:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.action-btn.download:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-btn.share {
+  background: #6f42c1;
+  color: white;
+}
+
+.action-btn.share:hover {
+  background: #5a32a3;
+  transform: translateY(-1px);
+}
+
+.action-btn.edit {
+  background: #4ecdc4;
+  color: white;
+}
+
+.action-btn.edit:hover {
+  background: #3cb0a8;
+  transform: translateY(-1px);
+}
+
+.action-btn.toggle {
+  background: #ffc107;
+  color: #212529;
+}
+
+.action-btn.toggle:hover {
+  background: #e0a800;
+  transform: translateY(-1px);
+}
+
+.action-btn.delete {
+  background: #dc3545;
+  color: white;
+}
+
+.action-btn.delete:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* 报表查看器 */
+.report-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.viewer-header {
+  background: linear-gradient(135deg, #2c5364, #203a43);
+  padding: 20px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.viewer-header h2 {
+  color: #4ecdc4;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.viewer-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.report-data {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  color: #333;
+  min-height: 500px;
+}
+
+/* 定时报表创建对话框 */
+.schedule-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #2c5364, #203a43);
+  border-radius: 20px;
+  padding: 30px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+  color: #4ecdc4;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #4ecdc4;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 12px 15px;
+  border: 2px solid #4ecdc4;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+  border-color: #4ecdc4;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-cancel, .btn-save {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+.btn-save {
+  background: #4ecdc4;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #3cb0a8;
+  transform: translateY(-2px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .advanced-reporting {
+    padding: 20px 15px;
+  }
+
+  .reporting-header h1 {
+    font-size: 2rem;
+  }
+
+  .reporting-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .action-btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+
+  .filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .filters select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .reports-grid, .scheduled-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .report-card, .schedule-card {
+    padding: 20px;
+  }
+
+  .card-header, .schedule-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .card-actions, .schedule-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .action-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .preview-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .modal-content {
+    padding: 20px;
+    width: 95%;
+  }
+
+  .viewer-header {
+    padding: 15px 20px;
+  }
+
+  .viewer-content {
+    padding: 20px;
+  }
+
+  .report-data {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reporting-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .card-actions, .schedule-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .btn-cancel, .btn-save {
+    width: 100%;
+  }
+}

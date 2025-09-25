@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API测试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        button { padding: 10px 20px; margin: 5px; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>API测试页面</h1>
+    
+    <div class="test-section">
+        <h3>1. 创建会话</h3>
+        <button onclick="createSession()">创建会话</button>
+        <div id="sessionResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. 发送消息</h3>
+        <textarea id="messageInput" placeholder="输入测试消息">我想申请50万贷款</textarea>
+        <button onclick="sendMessage()">发送消息</button>
+        <div id="messageResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. 完整测试</h3>
+        <button onclick="fullTest()">完整测试</button>
+        <div id="fullResult"></div>
+    </div>
+
+    <script>
+        let sessionId = null;
+
+        function showResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${isSuccess ? 'success' : 'error'}">${message}</div>`;
+        }
+
+        async function createSession() {
+            try {
+                showResult('sessionResult', '正在创建会话...', true);
+                
+                const response = await fetch('http://localhost:8000/api/v1/chat/session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: 'test_user_' + Date.now(),
+                        chatbot_role: 'general'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data?.session_id) {
+                    sessionId = data.data.session_id;
+                    showResult('sessionResult', `✅ 会话创建成功！<br>会话ID: ${sessionId}`, true);
+                } else {
+                    showResult('sessionResult', `❌ 会话创建失败: ${data.message || '未知错误'}`, false);
+                }
+            } catch (error) {
+                showResult('sessionResult', `❌ 网络错误: ${error.message}`, false);
+            }
+        }
+
+        async function sendMessage() {
+            if (!sessionId) {
+                showResult('messageResult', '❌ 请先创建会话', false);
+                return;
+            }
+
+            try {
+                const message = document.getElementById('messageInput').value;
+                showResult('messageResult', '正在发送消息...', true);
+                
+                const response = await fetch('http://localhost:8000/api/v1/chat/message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: message,
+                        user_info: {
+                            user_id: 'test_user',
+                            username: '测试用户'
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.data?.response) {
+                    showResult('messageResult', `✅ 消息发送成功！<br><br>AI回复:<br>${data.data.response}`, true);
+                } else {
+                    showResult('messageResult', `❌ 消息发送失败: ${data.message || '未知错误'}`, false);
+                }
+            } catch (error) {
+                showResult('messageResult', `❌ 网络错误: ${error.message}`, false);
+            }
+        }
+
+        async function fullTest() {
+            showResult('fullResult', '开始完整测试...', true);
+            
+            try {
+                // 1. 创建会话
+                await createSession();
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 2. 发送消息
+                document.getElementById('messageInput').value = '我想申请50万贷款，请推荐合适的银行';
+                await sendMessage();
+                
+                showResult('fullResult', '✅ 完整测试完成！所有功能正常工作。', true);
+                
+            } catch (error) {
+                showResult('fullResult', `❌ 完整测试失败: ${error.message}`, false);
+            }
+        }
+
+        // 页面加载时自动创建会话
+        window.onload = function() {
+            createSession();
+        };
+    </script>
+</body>
+</html>

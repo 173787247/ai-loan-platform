@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Chatbot Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .result { margin: 10px 0; padding: 10px; background: #f5f5f5; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>AI Chatbot Debug Test</h1>
+    
+    <div class="test-section">
+        <h3>1. 测试AI服务健康检查</h3>
+        <button onclick="testHealth()">测试健康检查</button>
+        <div id="health-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>2. 测试创建聊天会话</h3>
+        <button onclick="testCreateSession()">测试创建会话</button>
+        <div id="session-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>3. 测试发送消息</h3>
+        <button onclick="testSendMessage()">测试发送消息</button>
+        <div id="message-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://ai-loan-ai-service:8000/api/v1';
+        let sessionId = null;
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // 尝试直接访问健康检查端点
+                const response = await fetch('http://172.18.0.6:8000/health');
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="success">✅ 健康检查成功: ${JSON.stringify(data)}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ 健康检查失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testCreateSession() {
+            const resultDiv = document.getElementById('session-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('http://172.18.0.6:8000/api/v1/chat/session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: '2',
+                        chatbot_role: 'general'
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    sessionId = data.data.session_id;
+                    resultDiv.innerHTML = `<div class="success">✅ 会话创建成功: ${JSON.stringify(data)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ 会话创建失败: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ 请求失败: ${error.message}</div>`;
+            }
+        }
+
+        async function testSendMessage() {
+            const resultDiv = document.getElementById('message-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            if (!sessionId) {
+                resultDiv.innerHTML = '<div class="error">❌ 请先创建会话</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://172.18.0.6:8000/api/v1/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        message: '你好，请介绍一下贷款产品',
+                        user_info: {
+                            user_id: '2',
+                            user_role: 'borrower',
+                            username: '张三'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.innerHTML = `<div class="success">✅ 消息发送成功: ${JSON.stringify(data)}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ 消息发送失败: ${JSON.stringify(data)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ 请求失败: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

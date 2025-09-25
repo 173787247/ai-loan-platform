@@ -1,0 +1,455 @@
+/* 高级仪表板样式 */
+.advanced-dashboard {
+  padding: 30px;
+  padding-top: 150px; /* 为导航栏留出足够空间 */
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  min-height: 100vh;
+  color: white;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.header-content h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-content p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.dashboard-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group label {
+  font-weight: 600;
+  color: #4ecdc4;
+  font-size: 0.9rem;
+}
+
+.control-group select {
+  padding: 8px 15px;
+  border-radius: 8px;
+  border: 2px solid #4ecdc4;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
+  min-width: 120px;
+}
+
+.control-group select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+}
+
+.customize-btn, .refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.customize-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid #4ecdc4;
+}
+
+.customize-btn:hover, .customize-btn.active {
+  background: #4ecdc4;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, #4ecdc4, #44a08d);
+  color: white;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.dashboard-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  grid-auto-rows: minmax(200px, auto);
+}
+
+.widget {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.widget:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-color: #4ecdc4;
+}
+
+.widget.customizable {
+  cursor: move;
+  border: 2px dashed #4ecdc4;
+}
+
+.widget.customizable:hover {
+  background: rgba(78, 205, 196, 0.1);
+}
+
+.widget.large {
+  grid-column: span 2;
+}
+
+.widget.medium {
+  grid-column: span 1;
+}
+
+.widget.small {
+  grid-column: span 1;
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.widget-header h3 {
+  color: #4ecdc4;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.remove-widget-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.remove-widget-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
+}
+
+.widget-content {
+  height: calc(100% - 60px);
+  overflow: hidden;
+}
+
+/* KPI卡片样式 */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.kpi-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.kpi-icon {
+  font-size: 2rem;
+  background: linear-gradient(45deg, #4ecdc4, #44a08d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.kpi-content h4 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin: 0 0 5px 0;
+  font-weight: 500;
+}
+
+.kpi-value {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0 0 5px 0;
+}
+
+.kpi-trend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.kpi-trend.positive {
+  color: #28a745;
+  background: rgba(40, 167, 69, 0.2);
+}
+
+.kpi-trend.negative {
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.2);
+}
+
+/* 活动流样式 */
+.activity-feed {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-icon {
+  font-size: 1.2rem;
+  margin-top: 2px;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-text {
+  color: white;
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.activity-time {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+}
+
+/* 系统健康样式 */
+.system-health {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.health-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.health-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.health-bar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.health-progress {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.health-value {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* 占位符样式 */
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+/* 加载状态 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  color: white;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #4ecdc4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .widget.large {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .advanced-dashboard {
+    padding: 20px 15px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-content h1 {
+    font-size: 2rem;
+  }
+
+  .dashboard-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .widgets-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .widget {
+    padding: 20px;
+  }
+
+  .kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .kpi-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .health-item {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .health-bar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .dashboard-controls {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .control-group select {
+    min-width: 200px;
+  }
+
+  .customize-btn, .refresh-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .widget {
+    padding: 15px;
+  }
+
+  .kpi-value {
+    font-size: 1.2rem;
+  }
+}
