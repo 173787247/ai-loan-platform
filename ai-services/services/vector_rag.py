@@ -191,7 +191,7 @@ class VectorRAGService:
                     WHERE category = $2 
                     AND to_tsvector('chinese', content) @@ plainto_tsquery('chinese', $1)
                     ORDER BY relevance_score DESC
-                    LIMIT $3
+                    LIMIT $3::INTEGER
                     """
                     results = await conn.fetch(query_sql, query, category, max_results)
                 else:
@@ -243,7 +243,7 @@ class VectorRAGService:
                 SELECT id, category, title, content, relevance_score, metadata
                 FROM search_knowledge_hybrid($1, $2::VECTOR(384), $3, $4)
                 """
-                results = await conn.fetch(query_sql, query, embedding_str, category, max_results)
+                results = await conn.fetch(query_sql, query, embedding_str, category or '', max_results)
                 
                 knowledge_results = []
                 for row in results:

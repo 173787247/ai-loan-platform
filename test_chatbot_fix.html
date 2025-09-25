@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI聊天机器人测试 - 修复版</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .chat-container {
+            border: 1px solid #ddd;
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: 20%;
+        }
+        .ai-message {
+            background-color: #e9ecef;
+            color: #333;
+            margin-right: 20%;
+        }
+        .error-message {
+            background-color: #dc3545;
+            color: white;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI聊天机器人测试 - 修复版</h1>
+        
+        <div id="status" class="status info">
+            准备就绪，请先创建会话
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message ai-message">
+                <strong>AI客服：</strong>您好！我是AI智能客服，专门为您提供贷款相关的咨询服务。请先点击"创建会话"按钮开始对话。
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="请输入您的问题..." disabled>
+            <button id="sendButton" onclick="sendMessage()" disabled>发送</button>
+            <button id="createSessionButton" onclick="createSession()">创建会话</button>
+            <button id="clearButton" onclick="clearChat()">清空聊天</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        let isSessionCreated = false;
+
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function addMessage(content, isUser = false, isError = false) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : (isError ? 'error-message' : 'ai-message')}`;
+            
+            const prefix = isUser ? '用户：' : (isError ? '错误：' : 'AI客服：');
+            messageDiv.innerHTML = `<strong>${prefix}</strong>${content}`;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function createSession() {
+            try {
+                updateStatus('正在创建会话...', 'info');
+                
+                const response = await fetch('http://localhost:8000/api/v1/chat/session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: 'test_user_' + Date.now(),
+                        chatbot_role: 'general'
+                    })
+                });
+
+                const data = await response.json();
+                console.log('会话创建响应:', data);
+
+                if (data.success && data.data?.session_id) {
+                    currentSessionId = data.data.session_id;
+                    isSessionCreated = true;
+                    
+                    // 启用输入和发送按钮
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('sendButton').disabled = false;
+                    document.getElementById('createSessionButton').disabled = true;
+                    
+                    updateStatus(`会话创建成功！会话ID: ${currentSessionId}`, 'success');
+                    addMessage('会话已创建，现在可以开始对话了！');
+                } else {
+                    throw new Error(data.message || '会话创建失败');
+                }
+            } catch (error) {
+                console.error('创建会话失败:', error);
+                updateStatus(`创建会话失败: ${error.message}`, 'error');
+                addMessage(`创建会话失败: ${error.message}`, false, true);
+            }
+        }
+
+        async function sendMessage() {
+            if (!isSessionCreated || !currentSessionId) {
+                addMessage('请先创建会话！', false, true);
+                return;
+            }
+
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                addMessage('请输入消息内容！', false, true);
+                return;
+            }
+
+            // 添加用户消息到聊天界面
+            addMessage(message, true);
+            messageInput.value = '';
+
+            // 禁用发送按钮
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true;
+            sendButton.textContent = '发送中...';
+
+            try {
+                updateStatus('正在发送消息...', 'info');
+                
+                const response = await fetch('http://localhost:8000/api/v1/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: currentSessionId,
+                        message: message,
+                        user_info: {
+                            user_id: 'test_user',
+                            username: '测试用户'
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                console.log('消息发送响应:', data);
+
+                if (data.success && data.data?.response) {
+                    addMessage(data.data.response);
+                    updateStatus('消息发送成功', 'success');
+                } else {
+                    throw new Error(data.message || '消息发送失败');
+                }
+            } catch (error) {
+                console.error('发送消息失败:', error);
+                updateStatus(`发送消息失败: ${error.message}`, 'error');
+                addMessage(`发送消息失败: ${error.message}`, false, true);
+            } finally {
+                // 重新启用发送按钮
+                sendButton.disabled = false;
+                sendButton.textContent = '发送';
+            }
+        }
+
+        function clearChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = '<div class="message ai-message"><strong>AI客服：</strong>聊天记录已清空。</div>';
+            
+            // 重置状态
+            currentSessionId = null;
+            isSessionCreated = false;
+            document.getElementById('messageInput').disabled = true;
+            document.getElementById('sendButton').disabled = true;
+            document.getElementById('createSessionButton').disabled = false;
+            
+            updateStatus('聊天已清空，请重新创建会话', 'info');
+        }
+
+        // 回车发送消息
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

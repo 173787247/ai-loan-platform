@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useUser } from '../contexts/UserContext';
 import aiService from '../services/AIService';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import './AIChatbotDemo.css';
 
 const AIChatbotDemo = () => {
@@ -38,17 +40,26 @@ const AIChatbotDemo = () => {
   const createNewSession = async () => {
     try {
       console.log('创建新会话，用户ID:', user?.id);
+      
+      // 清理所有旧状态
+      localStorage.removeItem('chatSessionId');
+      setCurrentSession(null);
+      
       const response = await aiService.createChatSession(user?.id || 'anonymous', 'general');
       console.log('会话创建响应:', response);
       
       if (response.success && response.data?.session_id) {
         const sessionId = response.data.session_id;
+        console.log('新会话创建成功，ID:', sessionId);
+        console.log('设置localStorage和currentSession状态');
         localStorage.setItem('chatSessionId', sessionId);
         setCurrentSession(sessionId);
-        console.log('新会话创建成功，ID:', sessionId);
+        console.log('会话状态已更新，currentSession:', sessionId);
         return sessionId;
       } else {
-        throw new Error('会话创建失败：响应格式错误');
+        console.error('会话创建失败，响应:', response);
+        console.error('响应数据结构:', JSON.stringify(response, null, 2));
+        throw new Error(`会话创建失败：${response.message || '响应格式错误'}`);
       }
     } catch (error) {
       console.error('创建会话失败:', error);
@@ -72,24 +83,40 @@ const AIChatbotDemo = () => {
     setIsLoading(true);
     setError(null);
 
+    // 清理可能存在的旧会话ID
+    console.log('清理旧会话ID，确保使用最新会话');
+    const oldSessionId = localStorage.getItem('chatSessionId');
+    if (oldSessionId && oldSessionId !== currentSession) {
+      console.log('发现不一致的会话ID，清理localStorage');
+      localStorage.removeItem('chatSessionId');
+    }
+
     try {
-      // 获取或创建会话ID
-      let sessionId = currentSession || localStorage.getItem('chatSessionId');
+      // 强制清理所有旧会话ID
+      console.log('强制清理所有旧会话ID');
+      localStorage.removeItem('chatSessionId');
+      setCurrentSession(null);
       
-      if (!sessionId || sessionId === 'undefined' || sessionId === 'null') {
-        console.log('没有有效会话ID，创建新会话');
-        sessionId = await createNewSession();
-      } else {
-        console.log('使用现有会话ID:', sessionId);
+      // 创建新会话
+      console.log('创建新会话');
+      const sessionId = await createNewSession();
+      setCurrentSession(sessionId);
+      console.log('新会话创建完成，会话ID:', sessionId);
+
+      // 验证会话ID
+      if (!sessionId) {
+        throw new Error('无法创建或获取会话ID');
       }
 
       // 发送消息到AI服务
       console.log('发送消息到AI服务，会话ID:', sessionId);
+      console.log('用户信息:', { user_id: user?.id || 'anonymous', username: user?.username || '用户' });
+      console.log('消息内容:', userMessage.content);
+      
       const response = await aiService.sendChatMessage(sessionId, userMessage.content, {
         user_id: user?.id || 'anonymous',
         username: user?.username || '用户'
       });
-
       console.log('AI服务响应:', response);
 
       // 处理AI回复
@@ -166,7 +193,29 @@ const AIChatbotDemo = () => {
       <div key={messageId} className={`message ${isUser ? 'user-message' : 'ai-message'}`}>
         <div className="message-content">
           <div className="message-text">
-            {message.content}
+            {isUser ? (
+              message.content
+            ) : (
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  // 自定义样式
+                  h1: ({children}) => <h1 style={{fontSize: '1.5em', margin: '0.5em 0', color: '#1890ff'}}>{children}</h1>,
+                  h2: ({children}) => <h2 style={{fontSize: '1.3em', margin: '0.4em 0', color: '#1890ff'}}>{children}</h2>,
+                  h3: ({children}) => <h3 style={{fontSize: '1.1em', margin: '0.3em 0', color: '#1890ff'}}>{children}</h3>,
+                  p: ({children}) => <p style={{margin: '0.5em 0', lineHeight: '1.6'}}>{children}</p>,
+                  ul: ({children}) => <ul style={{margin: '0.5em 0', paddingLeft: '1.5em'}}>{children}</ul>,
+                  ol: ({children}) => <ol style={{margin: '0.5em 0', paddingLeft: '1.5em'}}>{children}</ol>,
+                  li: ({children}) => <li style={{margin: '0.2em 0', lineHeight: '1.5'}}>{children}</li>,
+                  strong: ({children}) => <strong style={{color: '#1890ff', fontWeight: 'bold'}}>{children}</strong>,
+                  code: ({children}) => <code style={{background: '#f5f5f5', padding: '2px 4px', borderRadius: '3px', fontFamily: 'monospace'}}>{children}</code>,
+                  pre: ({children}) => <pre style={{background: '#f5f5f5', padding: '10px', borderRadius: '5px', overflow: 'auto'}}>{children}</pre>,
+                  blockquote: ({children}) => <blockquote style={{borderLeft: '4px solid #1890ff', paddingLeft: '10px', margin: '0.5em 0', color: '#666'}}>{children}</blockquote>
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
+            )}
           </div>
           <div className="message-time">
             {formatTime(message.timestamp)}

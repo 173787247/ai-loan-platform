@@ -515,6 +515,9 @@ async def create_chat_session(request: ChatSessionRequest):
         role = ChatbotRole(request.chatbot_role)
         session_id = ai_chatbot.create_session(request.user_id, role)
         
+        logger.info(f"会话创建成功: session_id={session_id}, 当前会话数: {len(ai_chatbot.sessions)}")
+        logger.info(f"当前所有会话ID: {list(ai_chatbot.sessions.keys())}")
+        
         return AIResponse(
             success=True,
             message="聊天会话创建成功",
@@ -534,6 +537,11 @@ async def create_chat_session(request: ChatSessionRequest):
 async def send_chat_message(request: ChatMessageRequest):
     """发送聊天消息"""
     try:
+        logger.info(f"收到聊天消息请求: session_id={request.session_id}, message={request.message[:50]}...")
+        logger.info(f"当前会话数: {len(ai_chatbot.sessions)}")
+        logger.info(f"当前所有会话ID: {list(ai_chatbot.sessions.keys())}")
+        logger.info(f"请求的会话ID是否存在: {request.session_id in ai_chatbot.sessions}")
+        
         result = await ai_chatbot.process_message(
             request.session_id,
             request.message,

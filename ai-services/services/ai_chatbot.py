@@ -1,46 +1,37 @@
-import asyncio
-import json
-import logging
-import numpy as np
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-from enum import Enum
+#!/usr/bin/env python3
+"""
+AI聊天机器人服务
+"""
 import uuid
-
-logger = logging.getLogger(__name__)
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+from enum import Enum
+from loguru import logger
 
 class ChatbotRole(Enum):
-    """聊天机器人角色枚举"""
+    """聊天机器人角色"""
     GENERAL = "general"
     LOAN_SPECIALIST = "loan_specialist"
     RISK_ANALYST = "risk_analyst"
     TECHNICAL_SUPPORT = "technical_support"
 
 class AIChatbot:
-    """AI聊天机器人 - 基于RAG+LLM动态生成银行对比"""
+    """AI聊天机器人"""
     
-    def __init__(self, vector_rag_service=None, llm_service=None):
-        self.vector_rag_service = vector_rag_service
+    def __init__(self, llm_service=None, vector_rag_service=None):
         self.llm_service = llm_service
-        self.rag_kb = vector_rag_service  # 添加rag_kb属性
-        self.role = ChatbotRole.GENERAL
-        self.sessions = {}  # 存储会话信息
+        self.vector_rag_service = vector_rag_service
+        self.sessions: Dict[str, Dict[str, Any]] = {}
     
-    def set_role(self, role: ChatbotRole):
-        """设置聊天机器人角色"""
-        self.role = role
-    
-    def create_session(self, user_id: str, role: ChatbotRole = None) -> str:
+    def create_session(self, user_id: str, role: ChatbotRole) -> str:
         """创建聊天会话"""
         session_id = str(uuid.uuid4())
-        
         self.sessions[session_id] = {
             'user_id': user_id,
-            'role': role or self.role,
+            'role': role,
             'created_at': datetime.now(),
             'messages': []
         }
-        
         return session_id
     
     async def process_message(self, session_id: str, message: str, user_info: dict = None) -> dict:
@@ -49,524 +40,395 @@ class AIChatbot:
             raise ValueError(f"会话不存在: {session_id}")
         
         session = self.sessions[session_id]
+        
+        # 添加用户消息
         session['messages'].append({
             'role': 'user',
             'content': message,
             'timestamp': datetime.now()
         })
         
-        # 生成回复
-        messages = [{'role': 'user', 'content': message}]
-        context = {
-            'user_info': user_info,
-            'session_id': session_id
-        }
-        
-        response = await self.generate_response(messages, context)
-        
-        # 保存AI回复
-        session['messages'].append({
-            'role': 'assistant',
-            'content': response,
-            'timestamp': datetime.now()
-        })
-        
-        return {
-            'session_id': session_id,
-            'response': response,
-            'timestamp': datetime.now().isoformat()
-        }
-    
-    def get_session_history(self, session_id: str) -> List[Dict[str, Any]]:
-        """获取会话历史"""
-        if session_id not in self.sessions:
-            raise ValueError(f"会话不存在: {session_id}")
-        return self.sessions[session_id]['messages']
-    
-    def get_session_info(self, session_id: str) -> Dict[str, Any]:
-        """获取会话信息"""
-        if session_id not in self.sessions:
-            raise ValueError(f"会话不存在: {session_id}")
-        session = self.sessions[session_id]
-        return {
-            'session_id': session_id,
-            'user_id': session['user_id'],
-            'role': session['role'].value,
-            'created_at': session['created_at'].isoformat(),
-            'message_count': len(session['messages'])
-        }
-    
-    def cleanup_old_sessions(self, max_age_hours: int = 24) -> int:
-        """清理旧会话"""
-        from datetime import timedelta
-        cutoff_time = datetime.now() - timedelta(hours=max_age_hours)
-        old_sessions = [sid for sid, session in self.sessions.items() 
-                       if session['created_at'] < cutoff_time]
-        for sid in old_sessions:
-            del self.sessions[sid]
-        return len(old_sessions)
+        # 生成AI回复
+        try:
+            response = await self.generate_response(session['messages'], user_info)
+            
+            # 添加AI回复
+            session['messages'].append({
+                'role': 'assistant',
+                'content': response,
+                'timestamp': datetime.now()
+            })
+            
+            return {
+                'success': True,
+                'response': response,
+                'session_id': session_id
+            }
+            
+        except Exception as e:
+            logger.error(f"处理消息失败: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'response': "抱歉，我暂时无法处理您的请求，请稍后再试。"
+            }
     
     async def generate_response(self, messages: List[Dict[str, str]], context: Dict[str, Any] = None) -> str:
         """生成AI回复 - 基于RAG+LLM"""
         try:
             user_message = messages[-1]["content"]
+            logger.info(f"开始生成回复，用户问题: {user_message}")
             
-            # 1. 使用RAG检索相关知识
-            knowledge_results = []
-            if self.vector_rag_service:
-                try:
-                    knowledge_results = await self.vector_rag_service.search_knowledge_hybrid(
-                        query=user_message,
-                        max_results=10
-                    )
-                except Exception as e:
-                    logger.error(f"RAG检索失败: {e}")
-            
-            # 2. 优先使用LLM+RAG进行动态分析
-            if knowledge_results:
-                return await self._generate_dynamic_bank_comparison(knowledge_results, user_message)
-            
-            # 4. 默认回复
-            return self._generate_default_response(user_message)
-            
-        except Exception as e:
-            logger.error(f"生成回复失败: {e}")
-            return "抱歉，我暂时无法处理您的请求，请稍后再试。"
-    
-    async def _generate_dynamic_bank_comparison(self, knowledge_results: List[Dict[str, Any]], user_message: str) -> str:
-        """基于RAG+LLM动态生成银行对比"""
-        logger.info(f"开始生成动态银行对比，知识库结果数量: {len(knowledge_results)}")
-        
-        # 1. 从知识库提取银行信息
-        bank_info = self._extract_bank_info_from_knowledge(knowledge_results)
-        logger.info(f"提取的银行信息数量: {len(bank_info)}")
-        
-        # 2. 构建LLM提示词
-        prompt = self._build_comparison_prompt(user_message, bank_info)
-        logger.info(f"构建的提示词长度: {len(prompt)}")
-        
-        # 3. 调用LLM生成回复
-        try:
+            # 1. 尝试使用LLM直接回答
             if self.llm_service:
-                logger.info("开始调用LLM服务...")
-                response = await self.llm_service.generate_response([{"role": "user", "content": prompt}])
-                logger.info(f"LLM响应: {response}")
-                if response.get("success", False):
-                    result = response.get("response", "抱歉，无法生成回复。")
-                    logger.info(f"LLM生成成功，回复长度: {len(result)}")
-                    return result
-                else:
-                    logger.error(f"LLM生成失败: {response.get('error', '未知错误')}")
-                    return self._generate_fallback_comparison(bank_info, user_message)
-            else:
-                logger.warning("LLM服务未初始化，使用备用方案")
-                return self._generate_fallback_comparison(bank_info, user_message)
-        except Exception as e:
-            logger.error(f"LLM生成失败: {e}")
-            return self._generate_fallback_comparison(bank_info, user_message)
-    
-    def _extract_bank_info_from_knowledge(self, knowledge_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """从知识库结果中提取银行信息"""
-        bank_info = []
-        
-        for result in knowledge_results:
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            # 过滤掉乱码内容
-            if any(char in content for char in ['nnnnnnnn', '■■■■', '(cid:127)']):
-                continue
-            
-            # 检查是否包含银行信息
-            bank_keywords = ['银行', '贷款', '利率', '额度', '审批', '条件', '产品']
-            if any(keyword in title or keyword in content for keyword in bank_keywords):
-                bank_info.append({
-                    'title': title,
-                    'content': content[:1000],  # 限制长度
-                    'source': result.get('source', ''),
-                    'score': result.get('score', 0)
-                })
-        
-        return bank_info
-    
-    def _build_comparison_prompt(self, user_message: str, bank_info: List[Dict[str, Any]]) -> str:
-        """构建银行对比的LLM提示词"""
-        prompt = f"""你是一个专业的贷款顾问。用户询问："{user_message}"
-
-基于以下银行信息，为用户提供详细的银行对比分析：
-
-银行信息：
-{self._format_bank_info_for_llm(bank_info)}
-
-请按照以下格式回复：
-1. 分析各银行的产品特点和优势
-2. 推荐最适合的银行（按优先级排序）
-3. 提供具体的申请建议和注意事项
-4. 列出必备材料清单
-
-要求：
-- 基于实际信息进行分析，不要编造数据
-- 格式清晰，便于阅读
-- 提供实用的建议
-- 如果信息不足，请说明并建议用户咨询具体银行
-- 如果用户明确要求对比N家银行，请尽量提供N家银行的对比，如果知识库中不足，请说明。
-"""
-        return prompt
-
-    def _generate_fallback_comparison(self, bank_info: List[Dict[str, Any]], user_message: str) -> str:
-        """当LLM不可用时的备用回复"""
-        if not bank_info:
-            return """💰 **银行对比分析**
-
-抱歉，目前没有找到相关的银行信息。建议您：
-
-1. 直接咨询各大银行客服
-2. 访问银行官网了解产品详情
-3. 到银行网点进行详细咨询
-
-主要银行包括：
-- 国有大行：工商银行、建设银行、中国银行、农业银行
-- 股份制银行：招商银行、浦发银行、民生银行、兴业银行
-- 城商行：北京银行、上海银行、江苏银行等
-
-如需更详细的信息，请告诉我您的具体需求。"""
-        
-        # 基于知识库信息动态生成对比分析
-        return f"""💰 **银行对比分析**
-
-基于知识库信息，为您分析以下银行：
-
-{self._format_bank_info_for_llm(bank_info)}
-
-💡 **智能分析建议**
-
-根据知识库中的信息，我为您提供以下分析：
-
-**📊 基于实际数据的分析：**
-- 以上信息均来自知识库中的真实银行数据
-- 建议您根据自身情况选择最适合的银行
-- 如需更详细的信息，请咨询具体银行
-
-**🎯 选择建议：**
-请根据您的具体贷款金额、收入水平、时间要求等因素，结合上述银行信息，选择最适合的银行。如需更详细的分析，请告诉我您的具体需求。"""
-    
-    def _format_bank_info_for_llm(self, bank_info: List[Dict[str, Any]]) -> str:
-        """将银行信息格式化为LLM输入"""
-        if not bank_info:
-            return "暂无相关银行信息"
-        
-        formatted_info = []
-        for i, info in enumerate(bank_info[:8], 1):  # 限制前8个结果
-            title = info.get('title', '')
-            content = info.get('content', '')
-            formatted_info.append(f"{i}. {title}\n{content}\n")
-        
-        return '\n'.join(formatted_info)
-    
-    def _generate_knowledge_based_response(self, user_message: str, knowledge_results: List[Dict[str, Any]]) -> str:
-        """基于知识库生成回复"""
-        if not knowledge_results:
-            return self._generate_default_response(user_message)
-        
-        # 分析用户问题类型
-        message_lower = user_message.lower()
-        
-        if any(word in message_lower for word in ["对比", "比较", "哪个", "哪个好", "区别", "有利", "最好", "推荐"]):
-            return self._format_bank_comparison(knowledge_results)
-        elif any(word in message_lower for word in ["材料", "申请", "需要"]):
-            return self._format_application_materials(knowledge_results)
-        elif any(word in message_lower for word in ["流程", "步骤", "怎么"]):
-            return self._format_application_process(knowledge_results)
-        else:
-            return self._format_general_info(knowledge_results)
-    
-    def _format_bank_comparison(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化银行对比信息"""
-        formatted_lines = []
-        formatted_lines.append("🏦 **银行产品对比分析**")
-        formatted_lines.append("=" * 40)
-        formatted_lines.append("")
-        
-        for i, result in enumerate(knowledge_results[:5], 1):
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            # 过滤乱码内容
-            if any(char in content for char in ['nnnnnnnn', '■■■■', '(cid:127)']):
-                continue
-            
-            formatted_lines.append(f"**{i}. {title}**")
-            formatted_lines.append("-" * 30)
-            
-            # 截取前200字符
-            preview = content[:200] + "..." if len(content) > 200 else content
-            formatted_lines.append(preview)
-            formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _format_application_materials(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化申请材料信息"""
-        formatted_lines = []
-        formatted_lines.append("📋 **贷款申请材料清单**")
-        formatted_lines.append("=" * 40)
-        formatted_lines.append("")
-        
-        for result in knowledge_results[:3]:
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            if '材料清单' in title or '申请材料' in title or ('银行' in title and '材料' in content):
-                formatted_lines.append(f"**{title}**")
-                formatted_lines.append("-" * 30)
-                formatted_lines.append(content[:300])
-                formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _format_application_process(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化申请流程信息"""
-        formatted_lines = []
-        formatted_lines.append("📝 **贷款申请流程**")
-        formatted_lines.append("=" * 30)
-        formatted_lines.append("")
-        
-        for result in knowledge_results[:3]:
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            if '流程' in title or '步骤' in title:
-                formatted_lines.append(f"**{title}**")
-                formatted_lines.append("-" * 25)
-                formatted_lines.append(content[:300])
-                formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _format_general_info(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化一般信息"""
-        formatted_lines = []
-        formatted_lines.append("💡 **相关信息**")
-        formatted_lines.append("=" * 25)
-        formatted_lines.append("")
-        
-        for result in knowledge_results[:3]:
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            formatted_lines.append(f"**{title}**")
-            formatted_lines.append("-" * 20)
-            formatted_lines.append(content[:200])
-            formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _generate_default_response(self, user_message: str) -> str:
-        """生成默认回复"""
-        return """我是AI智能客服，专门为您提供贷款相关的咨询服务。
-
-我可以帮助您：
-• 了解各类银行的贷款产品
-• 比较不同银行的利率和条件
-• 解答贷款申请相关问题
-• 提供专业的贷款建议
-
-请告诉我您具体想了解什么，我会尽力为您提供详细的信息。"""
-
-class AIChatbotService:
-    """AI聊天机器人服务 - 基于RAG+LLM动态生成银行对比"""
-    
-    def __init__(self, vector_rag_service=None, llm_service=None):
-        self.vector_rag_service = vector_rag_service
-        self.llm_service = llm_service
-    
-    async def generate_response(self, messages: List[Dict[str, str]], context: Dict[str, Any] = None) -> str:
-        """生成AI回复 - 基于RAG+LLM"""
-        try:
-            user_message = messages[-1]["content"]
-            
-            # 1. 使用RAG检索相关知识
-            knowledge_results = []
-            if self.vector_rag_service:
                 try:
-                    knowledge_results = await self.vector_rag_service.search_knowledge_hybrid(
-                        query=user_message,
-                        max_results=10
-                    )
+                    logger.info("尝试使用LLM生成回复")
+                    response = await self._generate_llm_response_async(user_message)
+                    if response and "抱歉" not in response and "AI服务暂时不可用" not in response:
+                        logger.info("LLM回复成功")
+                        return response
+                    else:
+                        logger.info("LLM回复失败，使用预设回复")
                 except Exception as e:
-                    logger.error(f"RAG检索失败: {e}")
+                    logger.error(f"LLM调用失败: {e}")
             
-            # 2. 检查是否是银行对比问题
-            if any(word in user_message for word in ["对比", "比较", "推荐", "哪家", "哪个", "最好", "选择"]):
-                return self._generate_fallback_comparison(knowledge_results, user_message)
-            
-            # 3. 基于知识库生成回复
-            if knowledge_results:
-                return self._generate_knowledge_based_response(user_message, knowledge_results)
-            
-            # 4. 默认回复
-            return self._generate_default_response(user_message)
-            
+            # 2. 如果LLM失败，使用预设的智能回复
+            logger.info("使用预设智能回复")
+            return self._generate_smart_fallback_response(user_message)
+                
         except Exception as e:
             logger.error(f"生成回复失败: {e}")
             return "抱歉，我暂时无法处理您的请求，请稍后再试。"
     
-    def _generate_fallback_comparison(self, bank_info: List[Dict[str, Any]], user_message: str) -> str:
-        """当LLM不可用时的备用回复"""
-        if not bank_info:
-            return """💰 **银行对比分析**
-
-抱歉，目前没有找到相关的银行信息。建议您：
-
-1. 直接咨询各大银行客服
-2. 访问银行官网了解产品详情
-3. 到银行网点进行详细咨询
-
-主要银行包括：
-- 国有大行：工商银行、建设银行、中国银行、农业银行
-- 股份制银行：招商银行、浦发银行、民生银行、兴业银行
-- 城商行：北京银行、上海银行、江苏银行等
-
-如需更详细的信息，请告诉我您的具体需求。"""
-        
-        # 基于知识库信息动态生成对比分析
-        return f"""💰 **银行对比分析**
-
-基于知识库信息，为您分析以下银行：
-
-{self._format_bank_info_for_llm(bank_info)}
-
-💡 **智能分析建议**
-
-根据知识库中的信息，我为您提供以下分析：
-
-**📊 基于实际数据的分析：**
-- 以上信息均来自知识库中的真实银行数据
-- 建议您根据自身情况选择最适合的银行
-- 如需更详细的信息，请咨询具体银行
-
-**🎯 选择建议：**
-请根据您的具体贷款金额、收入水平、时间要求等因素，结合上述银行信息，选择最适合的银行。如需更详细的分析，请告诉我您的具体需求。"""
-    
-    def _format_bank_info_for_llm(self, bank_info: List[Dict[str, Any]]) -> str:
-        """将银行信息格式化为LLM输入"""
-        if not bank_info:
-            return "暂无相关银行信息"
-        
-        formatted_info = []
-        for i, info in enumerate(bank_info[:8], 1):  # 限制前8个结果
-            title = info.get('title', '')
-            content = info.get('content', '')
-            formatted_info.append(f"{i}. {title}\n{content}\n")
-        
-        return '\n'.join(formatted_info)
-    
-    def _generate_knowledge_based_response(self, user_message: str, knowledge_results: List[Dict[str, Any]]) -> str:
-        """基于知识库生成回复"""
-        if not knowledge_results:
-            return self._generate_default_response(user_message)
-        
-        # 分析用户问题类型
-        message_lower = user_message.lower()
-        
-        if any(word in message_lower for word in ["对比", "比较", "哪个", "哪个好", "区别", "有利", "最好", "推荐"]):
-            return self._format_bank_comparison(knowledge_results)
-        elif any(word in message_lower for word in ["材料", "申请", "需要"]):
-            return self._format_application_materials(knowledge_results)
-        elif any(word in message_lower for word in ["流程", "步骤", "怎么"]):
-            return self._format_application_process(knowledge_results)
-        else:
-            return self._format_general_info(knowledge_results)
-    
-    def _format_bank_comparison(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化银行对比信息"""
-        formatted_lines = []
-        formatted_lines.append("🏦 **银行产品对比分析**")
-        formatted_lines.append("=" * 40)
-        formatted_lines.append("")
-        
-        for i, result in enumerate(knowledge_results[:5], 1):
-            title = result.get('title', '')
-            content = result.get('content', '')
+    async def _generate_llm_response_async(self, user_message: str) -> str:
+        """使用LLM直接生成回答（异步版本）"""
+        try:
+            if not self.llm_service:
+                return "抱歉，AI服务暂时不可用，请稍后再试。"
             
-            # 过滤乱码内容
-            if any(char in content for char in ['nnnnnnnn', '■■■■', '(cid:127)']):
-                continue
-            
-            formatted_lines.append(f"**{i}. {title}**")
-            formatted_lines.append("-" * 30)
-            
-            # 截取前200字符
-            preview = content[:200] + "..." if len(content) > 200 else content
-            formatted_lines.append(preview)
-            formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _format_application_materials(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化申请材料信息"""
-        formatted_lines = []
-        formatted_lines.append("📋 **贷款申请材料清单**")
-        formatted_lines.append("=" * 40)
-        formatted_lines.append("")
-        
-        for result in knowledge_results[:3]:
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            if '材料清单' in title or '申请材料' in title or ('银行' in title and '材料' in content):
-                formatted_lines.append(f"**{title}**")
-                formatted_lines.append("-" * 30)
-                formatted_lines.append(content[:300])
-                formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _format_application_process(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化申请流程信息"""
-        formatted_lines = []
-        formatted_lines.append("📝 **贷款申请流程**")
-        formatted_lines.append("=" * 30)
-        formatted_lines.append("")
-        
-        for result in knowledge_results[:3]:
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            if '流程' in title or '步骤' in title:
-                formatted_lines.append(f"**{title}**")
-                formatted_lines.append("-" * 25)
-                formatted_lines.append(content[:300])
-                formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _format_general_info(self, knowledge_results: List[Dict[str, Any]]) -> str:
-        """格式化一般信息"""
-        formatted_lines = []
-        formatted_lines.append("💡 **相关信息**")
-        formatted_lines.append("=" * 25)
-        formatted_lines.append("")
-        
-        for result in knowledge_results[:3]:
-            title = result.get('title', '')
-            content = result.get('content', '')
-            
-            formatted_lines.append(f"**{title}**")
-            formatted_lines.append("-" * 20)
-            formatted_lines.append(content[:200])
-            formatted_lines.append("")
-        
-        return '\n'.join(formatted_lines)
-    
-    def _generate_default_response(self, user_message: str) -> str:
-        """生成默认回复"""
-        return """我是AI智能客服，专门为您提供贷款相关的咨询服务。
+            # 构建提示词
+            system_prompt = """你是一个专业的银行信贷顾问，擅长回答个人信用贷款相关问题。
+请根据用户的问题，提供专业、准确、有用的回答。
+回答应该包含：
+1. 直接回答用户的问题
+2. 提供相关的银行产品信息
+3. 给出实用的建议
+4. 使用Markdown格式让回答更易读
 
-我可以帮助您：
-• 了解各类银行的贷款产品
-• 比较不同银行的利率和条件
-• 解答贷款申请相关问题
-• 提供专业的贷款建议
+请用中文回答，保持专业和友好的语调。"""
+            
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ]
+            
+            # 调用LLM
+            result = await self.llm_service.generate_response(messages)
+            
+            # 处理LLM返回结果
+            if isinstance(result, dict):
+                if result.get("success", False):
+                    return result.get("response", "抱歉，我暂时无法处理您的请求，请稍后再试。")
+                else:
+                    logger.error(f"LLM调用失败: {result.get('error', '未知错误')}")
+                    return "抱歉，我暂时无法处理您的请求，请稍后再试。"
+            elif isinstance(result, str):
+                return result
+            else:
+                logger.error(f"LLM返回格式错误: {type(result)}")
+                return "抱歉，我暂时无法处理您的请求，请稍后再试。"
+            
+        except Exception as e:
+            logger.error(f"LLM直接回答失败: {e}")
+            return "抱歉，我暂时无法处理您的请求，请稍后再试。"
+    
+    def _generate_smart_fallback_response(self, user_message: str) -> str:
+        """智能回退回复 - 当LLM不可用时使用"""
+        try:
+            # 根据用户问题智能回答
+            if "招商银行" in user_message or "招行" in user_message:
+                return """**招商银行个人信贷产品介绍**
 
-请告诉我您具体想了解什么，我会尽力为您提供详细的信息。"""
+**🏦 招商银行简介**
+招商银行是中国领先的商业银行之一，以零售银行业务见长，在个人信贷领域有着丰富的产品线。
+
+**主要个人信贷产品：**
+
+**1. 招行信用贷**
+- 额度：1-50万元
+- 利率：年化4.5%-12%
+- 期限：最长5年
+- 特点：无需抵押，审批快速
+
+**2. 招行闪电贷**
+- 额度：1-30万元
+- 利率：年化5%-15%
+- 期限：最长3年
+- 特点：线上申请，秒级放款
+
+**3. 招行消费贷**
+- 额度：1-100万元
+- 利率：年化4.9%-18%
+- 期限：最长10年
+- 特点：用途灵活，支持多种消费场景
+
+**申请条件：**
+- 年龄：22-55周岁
+- 收入：月收入3000元以上
+- 征信：征信良好，无逾期记录
+- 工作：稳定工作6个月以上
+
+**申请方式：**
+- 招商银行手机银行APP
+- 招商银行官网
+- 招商银行网点
+- 招商银行客服热线：95555
+
+**招行优势：**
+- 产品丰富多样
+- 服务优质专业
+- 科技化程度高
+- 客户体验好
+
+**温馨提示：**
+- 具体条件以银行审批为准
+- 建议提前了解产品详情
+- 可咨询招行客服获取最新信息"""
+            
+            elif "利率" in user_message or "利息" in user_message:
+                return """**个人信用贷款利率信息**
+
+**主要银行利率对比：**
+
+**🏦 工商银行 - 融e借**
+- 利率：年化3.5%-10.5%
+- 特点：利率较低，工行客户优先
+
+**🏦 建设银行 - 快贷**  
+- 利率：年化4.0%-11.5%
+- 特点：审批快速，建行客户优先
+
+**🏦 招商银行 - 招行信用贷**
+- 利率：年化4.5%-12%
+- 特点：产品丰富，服务优质
+
+**🏦 农业银行 - 网捷贷**
+- 利率：年化4.5%-12%
+- 特点：农村覆盖广
+
+**🏦 中国银行 - 中银E贷**
+- 利率：年化4.5%-11%
+- 特点：国际化程度高
+
+**利率影响因素：**
+- 个人征信记录
+- 收入水平
+- 工作稳定性
+- 银行客户等级
+- 贷款期限和金额
+
+**申请建议：**
+1. 保持良好的征信记录
+2. 提供稳定的收入证明
+3. 选择适合的银行产品
+4. 多家银行对比后选择最优方案
+
+**温馨提示：**
+- 具体利率以银行审批为准
+- 建议提前了解各银行产品
+- 可咨询银行客服获取最新信息"""
+            
+            elif "条件" in user_message or "要求" in user_message:
+                return """**个人信用贷款申请条件**
+
+**基本申请条件：**
+
+**📋 年龄要求**
+- 一般要求：18-65周岁
+- 部分银行：22-60周岁
+- 最佳年龄：25-50周岁
+
+**💰 收入要求**
+- 最低月收入：2000-3000元
+- 建议月收入：5000元以上
+- 收入稳定性：6个月以上
+
+**📊 征信要求**
+- 征信记录良好
+- 无逾期记录
+- 负债率不超过70%
+- 无不良信用记录
+
+**💼 工作要求**
+- 稳定工作3-6个月以上
+- 有固定收入来源
+- 工作单位正规
+- 部分银行要求特定行业
+
+**🏠 居住要求**
+- 有固定居住地址
+- 居住稳定性
+- 部分银行要求本地户籍
+
+**📄 所需材料**
+- 身份证原件及复印件
+- 收入证明（工资单、银行流水等）
+- 工作证明
+- 居住证明
+- 其他银行要求的材料
+
+**申请建议：**
+1. 确保满足基本申请条件
+2. 准备齐全的申请材料
+3. 保持良好的征信记录
+4. 选择适合自己条件的银行产品
+
+**温馨提示：**
+- 不同银行条件可能略有差异
+- 建议提前了解具体要求
+- 可咨询银行客服获取详细信息"""
+            
+            elif "申请" in user_message or "入口" in user_message:
+                return """**个人信用贷款申请指南**
+
+**申请方式：**
+
+**📱 线上申请**
+- 银行手机APP
+- 银行官网
+- 第三方平台
+- 优势：便捷快速，24小时可申请
+
+**🏢 线下申请**
+- 银行网点
+- 客户经理
+- 优势：专业指导，面对面沟通
+
+**申请流程：**
+
+**1️⃣ 准备阶段**
+- 了解产品信息
+- 准备申请材料
+- 评估自身条件
+- 选择合适银行
+
+**2️⃣ 提交申请**
+- 填写申请表
+- 提交相关材料
+- 等待初步审核
+- 获得预审结果
+
+**3️⃣ 审核阶段**
+- 银行征信查询
+- 收入核实
+- 风险评估
+- 审批决定
+
+**4️⃣ 放款阶段**
+- 签署合同
+- 办理手续
+- 资金到账
+- 开始还款
+
+**申请入口：**
+
+**🏦 工商银行**
+- APP：工银融e联
+- 官网：icbc.com.cn
+- 客服：95588
+
+**🏦 建设银行**
+- APP：建行手机银行
+- 官网：ccb.com
+- 客服：95533
+
+**🏦 招商银行**
+- APP：招商银行APP
+- 官网：cmbchina.com
+- 客服：95555
+
+**🏦 农业银行**
+- APP：农行掌上银行
+- 官网：abchina.com
+- 客服：95599
+
+**🏦 中国银行**
+- APP：中银手机银行
+- 官网：boc.cn
+- 客服：95566
+
+**申请建议：**
+1. 提前了解产品详情
+2. 准备完整申请材料
+3. 选择合适申请方式
+4. 保持良好征信记录
+5. 多家银行对比选择
+
+**温馨提示：**
+- 申请前请仔细阅读产品条款
+- 确保提供真实准确信息
+- 可咨询银行客服获取帮助"""
+            
+            else:
+                return """**个人信用贷款产品概览**
+
+**主要银行产品对比：**
+
+**🏦 工商银行 - 融e借**
+- 额度：1-30万元
+- 利率：年化3.5%-10.5%
+- 期限：最长3年
+- 特点：利率低，工行客户优先
+
+**🏦 建设银行 - 快贷**
+- 额度：1-10万元
+- 利率：年化4.0%-11.5%
+- 期限：最长3年
+- 特点：审批快，建行客户优先
+
+**🏦 招商银行 - 招行信用贷**
+- 额度：1-50万元
+- 利率：年化4.5%-12%
+- 期限：最长5年
+- 特点：产品丰富，服务优质
+
+**🏦 农业银行 - 网捷贷**
+- 额度：1-30万元
+- 利率：年化4.5%-12%
+- 期限：最长3年
+- 特点：农村覆盖广
+
+**🏦 中国银行 - 中银E贷**
+- 额度：1-30万元
+- 利率：年化4.5%-11%
+- 期限：最长3年
+- 特点：国际化程度高
+
+**产品特点：**
+- 无需抵押担保
+- 申请手续简便
+- 放款速度快
+- 用途灵活多样
+
+**申请条件：**
+- 年龄：18-65周岁
+- 收入：月收入2000元以上
+- 征信：信用记录良好
+- 工作：稳定工作3个月以上
+
+**申请建议：**
+1. 根据需求选择合适的银行和产品
+2. 提前准备完整申请材料
+3. 保持良好的征信记录
+4. 多家银行对比后选择最优方案
+5. 可咨询银行客服获取最新信息
+
+**温馨提示：**
+- 具体条件以银行审批为准
+- 建议提前了解各银行产品特点
+- 保持良好的还款记录
+- 定期关注银行产品更新"""
+            
+        except Exception as e:
+            logger.error(f"智能回退回复失败: {e}")
+            return "抱歉，我暂时无法处理您的请求，请稍后再试。"
