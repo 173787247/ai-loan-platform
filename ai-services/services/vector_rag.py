@@ -11,6 +11,8 @@ from loguru import logger
 import os
 import json
 from datetime import datetime
+import hashlib
+from .cache_service import cache_service
 
 class VectorRAGService:
     """向量化RAG服务"""
@@ -47,13 +49,24 @@ class VectorRAGService:
         try:
             self.connection_pool = await asyncpg.create_pool(
                 **self.db_config,
-                min_size=5,
-                max_size=20
+                min_size=10,  # 增加最小连接数
+                max_size=50,  # 增加最大连接数
+                max_queries=50000,  # 每个连接最大查询数
+                max_inactive_connection_lifetime=300.0,  # 非活跃连接最大生存时间
+                command_timeout=60,  # 命令超时时间
+                server_settings={
+                    'jit': 'off',  # 关闭JIT以提高连接速度
+                    'application_name': 'ai_loan_rag'
+                }
             )
-            logger.info("PostgreSQL连接池初始化成功")
+            logger.info("PostgreSQL连接池初始化成功 - 配置: min=10, max=50")
         except Exception as e:
             logger.error(f"PostgreSQL连接池初始化失败: {e}")
             raise
+    
+    def is_initialized(self):
+        """检查服务是否已初始化"""
+        return self.connection_pool is not None
     
     async def close(self):
         """关闭数据库连接池"""
@@ -173,38 +186,56 @@ class VectorRAGService:
             logger.error(f"向量搜索失败: {e}")
             return await self.search_knowledge_text(query, category, max_results)
     
+    def _generate_cache_key(self, query: str, category: str = None, max_results: int = 5, search_type: str = "text") -> str:
+        """生成缓存键"""
+        key_data = f"{search_type}:{query}:{category or ''}:{max_results}"
+        return hashlib.md5(key_data.encode()).hexdigest()
+    
     async def search_knowledge_text(
         self, 
         query: str, 
         category: str = None, 
         max_results: int = 5
     ) -> List[Dict[str, Any]]:
-        """使用全文搜索知识库"""
+        """使用ILIKE模糊搜索知识库（带缓存）"""
+        # 检查缓存
+        cache_key = self._generate_cache_key(query, category, max_results, "text")
+        cached_result = await cache_service.get(cache_key)
+        if cached_result is not None:
+            logger.info(f"从缓存获取搜索结果: {query}")
+            return cached_result
+        
         try:
             async with self.connection_pool.acquire() as conn:
                 if category:
                     query_sql = """
                     SELECT id, category, title, content, 
-                           ts_rank(to_tsvector('chinese', content), plainto_tsquery('chinese', $1)) as relevance_score,
+                           CASE 
+                               WHEN content ILIKE $1 THEN 1.0
+                               ELSE 0.5
+                           END as relevance_score,
                            metadata
                     FROM knowledge_base 
                     WHERE category = $2 
-                    AND to_tsvector('chinese', content) @@ plainto_tsquery('chinese', $1)
-                    ORDER BY relevance_score DESC
+                    AND content ILIKE $1
+                    ORDER BY relevance_score DESC, id DESC
                     LIMIT $3::INTEGER
                     """
-                    results = await conn.fetch(query_sql, query, category, max_results)
+                    results = await conn.fetch(query_sql, f"%{query}%", category, max_results)
                 else:
                     query_sql = """
                     SELECT id, category, title, content, 
-                           ts_rank(to_tsvector('chinese', content), plainto_tsquery('chinese', $1)) as relevance_score,
+                           CASE 
+                               WHEN content ILIKE $1 THEN 1.0
+                               ELSE 0.5
+                           END as relevance_score,
                            metadata
                     FROM knowledge_base 
-                    WHERE to_tsvector('chinese', content) @@ plainto_tsquery('chinese', $1)
-                    ORDER BY relevance_score DESC
+                    WHERE content ILIKE $1
+                    ORDER BY relevance_score DESC, id DESC
                     LIMIT $2
                     """
-                    results = await conn.fetch(query_sql, query, max_results)
+                    results = await conn.fetch(query_sql, f"%{query}%", max_results)
                 
                 knowledge_results = []
                 for row in results:
@@ -218,6 +249,10 @@ class VectorRAGService:
                     })
                 
                 logger.info(f"全文搜索完成，找到 {len(knowledge_results)} 条结果")
+                
+                # 存储到缓存（缓存1小时）
+                await cache_service.set(cache_key, knowledge_results, ttl=3600)
+                
                 return knowledge_results
                 
         except Exception as e:
@@ -232,32 +267,38 @@ class VectorRAGService:
     ) -> List[Dict[str, Any]]:
         """混合搜索（向量+全文）"""
         try:
+            # 首先尝试向量搜索
             query_embedding = self._get_embedding(query)
-            if not query_embedding:
-                return await self.search_knowledge_text(query, category, max_results)
+            if query_embedding:
+                try:
+                    async with self.connection_pool.acquire() as conn:
+                        # 将embedding转换为PostgreSQL vector格式
+                        embedding_str = '[' + ','.join(map(str, query_embedding)) + ']'
+                        query_sql = """
+                        SELECT id, category, title, content, relevance_score, metadata
+                        FROM search_knowledge_hybrid($1, $2::VECTOR(384), $3, $4)
+                        """
+                        results = await conn.fetch(query_sql, query, embedding_str, category or '', max_results)
+                        
+                        knowledge_results = []
+                        for row in results:
+                            knowledge_results.append({
+                                "id": row["id"],
+                                "category": row["category"],
+                                "title": row["title"],
+                                "content": row["content"],
+                                "similarity_score": float(row["relevance_score"]),
+                                "metadata": json.loads(row["metadata"]) if row["metadata"] else {}
+                            })
+                        
+                        if knowledge_results:
+                            logger.info(f"混合搜索完成，找到 {len(knowledge_results)} 条结果")
+                            return knowledge_results
+                except Exception as e:
+                    logger.warning(f"向量搜索失败，回退到文本搜索: {e}")
             
-            async with self.connection_pool.acquire() as conn:
-                # 将embedding转换为PostgreSQL vector格式
-                embedding_str = '[' + ','.join(map(str, query_embedding)) + ']'
-                query_sql = """
-                SELECT id, category, title, content, relevance_score, metadata
-                FROM search_knowledge_hybrid($1, $2::VECTOR(384), $3, $4)
-                """
-                results = await conn.fetch(query_sql, query, embedding_str, category or '', max_results)
-                
-                knowledge_results = []
-                for row in results:
-                    knowledge_results.append({
-                        "id": row["id"],
-                        "category": row["category"],
-                        "title": row["title"],
-                        "content": row["content"],
-                        "similarity_score": float(row["relevance_score"]),
-                        "metadata": json.loads(row["metadata"]) if row["metadata"] else {}
-                    })
-                
-                logger.info(f"混合搜索完成，找到 {len(knowledge_results)} 条结果")
-                return knowledge_results
+            # 回退到文本搜索
+            return await self.search_knowledge_text(query, category, max_results)
                 
         except Exception as e:
             logger.error(f"混合搜索失败: {e}")
@@ -390,6 +431,28 @@ class VectorRAGService:
         except Exception as e:
             logger.error(f"获取统计信息失败: {e}")
             return {}
+    
+    async def search_knowledge_simple(
+        self, 
+        query: str, 
+        category: str = None, 
+        max_results: int = 5
+    ) -> List[Dict[str, Any]]:
+        """简单搜索（优先向量，回退到文本）"""
+        try:
+            # 首先尝试向量搜索
+            vector_results = await self.search_knowledge_vector(query, category, max_results, similarity_threshold=0.1)
+            if vector_results:
+                logger.info(f"向量搜索成功，找到 {len(vector_results)} 条结果")
+                return vector_results
+            
+            # 回退到文本搜索
+            logger.info("向量搜索无结果，回退到文本搜索")
+            return await self.search_knowledge_text(query, category, max_results)
+                
+        except Exception as e:
+            logger.error(f"简单搜索失败: {e}")
+            return []
 
 # 全局实例
 vector_rag_service = VectorRAGService()

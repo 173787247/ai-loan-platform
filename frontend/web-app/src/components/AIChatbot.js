@@ -16,6 +16,10 @@ const AIChatbot = () => {
   const [sessionId, setSessionId] = useState(null);
   const [chatbotRole, setChatbotRole] = useState('general');
   const [showFileUpload, setShowFileUpload] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [messageCount, setMessageCount] = useState(0);
+  const [lastActivity, setLastActivity] = useState(null);
   
   const messagesEndRef = useRef(null);
 
@@ -124,6 +128,10 @@ const AIChatbot = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setIsTyping(true);
+    setConnectionStatus('connecting');
+    setLastActivity(new Date());
+    setMessageCount(prev => prev + 1);
 
     try {
       const response = await aiService.sendChatMessage(sessionId, inputMessage, {
@@ -133,6 +141,7 @@ const AIChatbot = () => {
       });
 
       if (response.success) {
+        setConnectionStatus('connected');
         const aiMessage = {
           id: `ai_${Date.now()}`,
           role: 'assistant',
@@ -147,6 +156,7 @@ const AIChatbot = () => {
       }
     } catch (error) {
       console.error('发送消息失败:', error);
+      setConnectionStatus('error');
       showError('发送消息失败，请重试');
       
       const errorMessage = {
@@ -159,6 +169,7 @@ const AIChatbot = () => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      setIsTyping(false);
     }
   };
 
@@ -216,20 +227,33 @@ const AIChatbot = () => {
   const renderMessage = (message, index) => {
     const isUser = message.role === 'user';
     const isError = message.isError;
+    const isSystem = message.role === 'system';
     
     return (
       <div 
         key={message.id || index} 
-        className={`chat-message ${isUser ? 'user' : 'assistant'} ${isError ? 'error' : ''}`}
+        className={`chat-message ${isUser ? 'user' : 'assistant'} ${isError ? 'error' : ''} ${isSystem ? 'system' : ''}`}
       >
         <div className="message-bubble">
           <div className="message-header">
-            <span className="message-role">
-              {isUser ? user?.username || '您' : 'AI客服'}
-            </span>
-            <span className="message-time">
-              {formatTime(message.timestamp)}
-            </span>
+            <div className="message-avatar">
+              {isUser ? '👤' : isSystem ? '⚠️' : '🤖'}
+            </div>
+            <div className="message-info">
+              <span className="message-role">
+                {isUser ? user?.username || '您' : isSystem ? '系统' : 'AI客服'}
+              </span>
+              <span className="message-time">
+                {formatTime(message.timestamp)}
+              </span>
+            </div>
+            {message.metadata?.confidence && (
+              <div className="confidence-indicator">
+                <span className="confidence-score">
+                  {Math.round(message.metadata.confidence * 100)}%
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="message-text">
@@ -255,7 +279,24 @@ const AIChatbot = () => {
             <span className="chatbot-icon">
               {chatbotRoles.find(r => r.value === chatbotRole)?.icon || '🤖'}
             </span>
-            <span>AI智能客服</span>
+            <div className="title-info">
+              <span>AI智能客服</span>
+              <div className="status-indicators">
+                <div className={`connection-status ${connectionStatus}`}>
+                  <span className="status-dot"></span>
+                  <span className="status-text">
+                    {connectionStatus === 'connected' ? '已连接' : 
+                     connectionStatus === 'connecting' ? '连接中' : 
+                     connectionStatus === 'error' ? '连接错误' : '未连接'}
+                  </span>
+                </div>
+                {messageCount > 0 && (
+                  <div className="message-count">
+                    {messageCount} 条消息
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           
           <div className="chat-controls">

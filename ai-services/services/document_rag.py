@@ -24,6 +24,17 @@ class DocumentRAGService:
         self.vector_rag = vector_rag_service
         self.logger = logger
         
+    async def initialize(self):
+        """初始化文档RAG服务"""
+        try:
+            # 确保向量RAG服务已初始化
+            if not self.vector_rag.is_initialized():
+                await self.vector_rag.initialize()
+            self.logger.info("文档RAG服务初始化完成")
+        except Exception as e:
+            self.logger.error(f"文档RAG服务初始化失败: {e}")
+            raise
+        
     async def process_and_index_document(
         self, 
         file_path: str, 

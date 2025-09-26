@@ -1,69 +1,72 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-创建测试PDF文档
+创建测试PDF文件
+在桌面生成一个简单的PDF用于测试
 """
 
-from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from pathlib import Path
 import os
 
 def create_test_pdf():
-    """创建测试PDF文档"""
+    """创建测试PDF文件"""
+    desktop_path = Path.home() / "Desktop"
+    pdf_path = desktop_path / "test_document.pdf"
     
-    # 创建PDF文件
-    filename = "test_document.pdf"
-    c = canvas.Canvas(filename, pagesize=letter)
-    width, height = letter
-    
-    # 设置字体
-    c.setFont("Helvetica-Bold", 16)
-    
-    # 标题
-    c.drawString(100, height - 100, "AI智能助贷招标平台 - 测试文档")
-    
-    # 公司信息
-    c.setFont("Helvetica", 12)
-    y_position = height - 150
-    
-    company_info = [
-        "公司名称：北京科技有限公司",
-        "统一社会信用代码：91110000123456789X",
-        "法定代表人：张三",
-        "注册资本：1000万元人民币",
-        "成立日期：2020年1月1日",
-        "经营范围：技术开发、技术咨询、技术服务",
-        "",
-        "财务状况：",
-        "• 年营业收入：500万元",
-        "• 净利润：50万元", 
-        "• 总资产：2000万元",
-        "• 负债总额：800万元",
-        "",
-        "贷款需求：",
-        "• 申请金额：200万元",
-        "• 贷款期限：12个月",
-        "• 贷款用途：流动资金周转",
-        "• 还款方式：等额本息",
-        "",
-        "联系方式：",
-        "联系人：李四",
-        "联系电话：13800138000",
-        "邮箱：lisi@example.com"
-    ]
-    
-    for line in company_info:
-        c.drawString(100, y_position, line)
-        y_position -= 20
-    
-    # 保存PDF
-    c.save()
-    
-    print(f"✅ 测试PDF文档已创建: {filename}")
-    print(f"📁 文件大小: {os.path.getsize(filename)} bytes")
-    
-    return filename
+    try:
+        # 创建PDF
+        c = canvas.Canvas(str(pdf_path), pagesize=letter)
+        width, height = letter
+        
+        # 添加标题
+        c.setFont("Helvetica-Bold", 16)
+        c.drawString(100, height - 100, "AI智能助贷招标平台 - 测试文档")
+        
+        # 添加内容
+        c.setFont("Helvetica", 12)
+        y_position = height - 150
+        
+        content = [
+            "这是一个用于测试PDF上传功能的文档。",
+            "",
+            "文档内容：",
+            "1. 测试文档上传功能",
+            "2. 验证OCR识别能力", 
+            "3. 检查文档处理流程",
+            "",
+            "技术信息：",
+            "- 文档类型：PDF",
+            "- 创建时间：2025年9月25日",
+            "- 用途：系统测试",
+            "",
+            "如果您看到这个文档，说明PDF上传功能正常工作！",
+            "",
+            "AI智能助贷招标平台",
+            "智能金融科技解决方案"
+        ]
+        
+        for line in content:
+            c.drawString(100, y_position, line)
+            y_position -= 20
+        
+        # 保存PDF
+        c.save()
+        
+        print(f"✅ 测试PDF文件已创建: {pdf_path}")
+        print(f"文件大小: {pdf_path.stat().st_size / 1024:.2f} KB")
+        return pdf_path
+        
+    except ImportError:
+        print("❌ 缺少reportlab库，正在安装...")
+        os.system("pip install reportlab")
+        print("请重新运行此脚本")
+        return None
+    except Exception as e:
+        print(f"❌ 创建PDF失败: {str(e)}")
+        return None
 
 if __name__ == "__main__":
     create_test_pdf()

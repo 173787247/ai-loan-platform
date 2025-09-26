@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传测试</title>
+</head>
+<body>
+    <h1>文件上传测试</h1>
+    <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
+    <button onclick="uploadFile()">上传文件</button>
+    <div id="result"></div>
+
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请选择文件');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('category', 'test');
+            formData.append('metadata', '{}');
+
+            try {
+                console.log('开始上传文件:', file.name);
+                
+                const response = await fetch('http://localhost:8000/api/v1/rag/process-document', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                console.log('响应状态:', response.status);
+                console.log('响应头:', response.headers);
+
+                if (!response.ok) {
+                    throw new Error(`上传失败: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                console.log('上传成功:', result);
+                
+                document.getElementById('result').innerHTML = `
+                    <h3>上传成功!</h3>
+                    <p>文件名: ${result.data.filename}</p>
+                    <p>文档ID: ${result.data.document_id}</p>
+                    <p>处理时间: ${result.data.processing_time}ms</p>
+                `;
+            } catch (error) {
+                console.error('上传失败:', error);
+                document.getElementById('result').innerHTML = `
+                    <h3>上传失败!</h3>
+                    <p>错误: ${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

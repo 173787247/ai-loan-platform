@@ -28,9 +28,25 @@ from services.ai_chatbot import AIChatbot, ChatbotRole
 from services.llm_provider import llm_provider_manager
 from services.vector_rag import vector_rag_service
 from services.enhanced_web_search import enhanced_web_search_service
+from services.loan_agent import LoanAgent
+from services.loan_rfq_service import LoanRFQService
+from services.cache_service import cache_service
 from services.universal_bank_search import universal_bank_search_service
 from services.real_web_search import real_web_search_service
 from services.credit_api_service import credit_api_service
+from services.conversation_enhancer import ConversationEnhancer
+from services.knowledge_enhancer import KnowledgeEnhancer
+from services.personalization_engine import PersonalizationEngine
+from services.multi_turn_dialog import MultiTurnDialogManager
+from services.advanced_risk_engine import AdvancedRiskEngine
+from services.advanced_pricing_engine import AdvancedPricingEngine
+from services.approval_workflow_engine import ApprovalWorkflowEngine
+from services.compliance_checker import ComplianceChecker
+from services.third_party_integrator import third_party_integrator
+from services.data_sync_manager import data_sync_manager
+from services.api_stability_manager import api_stability_manager
+from services.monitoring_system import system_monitor
+from middleware.error_handler import ErrorHandler, PerformanceMiddleware, LoggingMiddleware
 from loguru import logger
 
 # 加载环境变量
@@ -48,15 +64,29 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+# 添加性能监控中间件
+app.middleware("http")(PerformanceMiddleware.performance_middleware)
+
+# 添加日志中间件
+app.middleware("http")(LoggingMiddleware.logging_middleware)
+
+# 设置错误处理器
+ErrorHandler.setup_error_handlers(app)
 
 # 启动事件
 @app.on_event("startup")
 async def startup_event():
     """应用启动时初始化服务"""
     try:
+        # 初始化缓存服务
+        await cache_service.initialize()
+        logger.info("缓存服务初始化成功")
+        
         # 初始化向量RAG服务
         await vector_rag_service.initialize()
         logger.info("向量RAG服务初始化成功")
@@ -76,6 +106,33 @@ async def startup_event():
         # 初始化真正的外网搜索服务
         await real_web_search_service.initialize()
         logger.info("真正的外网搜索服务初始化成功")
+        
+        # 初始化文档RAG服务
+        await document_rag.initialize()
+        logger.info("文档RAG服务初始化成功")
+        
+        # 初始化AI增强服务
+        knowledge_enhance_result = knowledge_enhancer.enhance_knowledge_base()
+        if knowledge_enhance_result.get("success"):
+            logger.info(f"知识库增强成功，新增 {knowledge_enhance_result.get('enhanced_count', 0)} 条知识")
+        else:
+            logger.warning("知识库增强失败")
+        
+        logger.info("AI增强服务初始化完成")
+        
+        # 初始化集成服务
+        await third_party_integrator.initialize()
+        await data_sync_manager.initialize()
+        await system_monitor.start_monitoring()
+        
+        # 配置API稳定性管理器
+        from services.api_stability_manager import CircuitBreakerConfig, RateLimitConfig
+        api_stability_manager.add_circuit_breaker("ai_chatbot", CircuitBreakerConfig())
+        api_stability_manager.add_circuit_breaker("rag_search", CircuitBreakerConfig())
+        api_stability_manager.add_rate_limiter("ai_chatbot", RateLimitConfig(max_requests=100, window_size=60))
+        api_stability_manager.add_rate_limiter("rag_search", RateLimitConfig(max_requests=200, window_size=60))
+        
+        logger.info("集成服务初始化完成")
         
         logger.info("AI服务启动完成")
     except Exception as e:
@@ -120,6 +177,38 @@ smart_matcher = SmartMatcher()
 recommendation_engine = RecommendationEngine()
 ai_model_manager = AIModelManager()
 ai_chatbot = AIChatbot(vector_rag_service=vector_rag_service, llm_service=llm_provider_manager)
+
+# 全局贷款智能体实例
+loan_agent = LoanAgent(
+    llm_service=llm_provider_manager,
+    rag_service=vector_rag_service,
+    risk_service=None,  # 待实现
+    pricing_service=None  # 待实现
+)
+
+# 全局助贷招标服务实例
+loan_rfq_service = LoanRFQService()
+
+# 全局AI增强服务实例
+conversation_enhancer = ConversationEnhancer(llm_service=llm_provider_manager)
+knowledge_enhancer = KnowledgeEnhancer(vector_rag_service=vector_rag_service)
+personalization_engine = PersonalizationEngine()
+multi_turn_dialog_manager = MultiTurnDialogManager(
+    conversation_enhancer=conversation_enhancer,
+    knowledge_enhancer=knowledge_enhancer
+)
+
+# 全局业务服务实例
+advanced_risk_engine = AdvancedRiskEngine()
+advanced_pricing_engine = AdvancedPricingEngine()
+approval_workflow_engine = ApprovalWorkflowEngine()
+compliance_checker = ComplianceChecker()
+
+# 全局集成服务实例
+# third_party_integrator 已在模块中初始化
+# data_sync_manager 已在模块中初始化
+# api_stability_manager 已在模块中初始化
+# system_monitor 已在模块中初始化
 
 # 请求模型
 class DocumentProcessRequest(BaseModel):
@@ -819,7 +908,892 @@ async def get_rag_stats():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"获取统计信息失败: {str(e)}")
 
+@app.get("/api/v1/cache/stats")
+async def get_cache_stats():
+    """获取缓存统计信息"""
+    try:
+        stats = await cache_service.get_stats()
+        return AIResponse(
+            success=True,
+            message="缓存统计信息获取成功",
+            data=stats
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取缓存统计信息失败: {str(e)}")
+
+@app.post("/api/v1/cache/clear")
+async def clear_cache(request: Dict[str, Any]):
+    """清除缓存"""
+    try:
+        pattern = request.get("pattern", "*")
+        cleared_count = await cache_service.clear_pattern(pattern)
+        return AIResponse(
+            success=True,
+            message=f"缓存清除成功，共清除 {cleared_count} 个键",
+            data={"cleared_count": cleared_count}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"清除缓存失败: {str(e)}")
+
 # 文档处理API
+@app.options("/api/v1/rag/process-document")
+async def process_document_options():
+    """处理文档上传的OPTIONS请求"""
+    return {"message": "OK"}
+
+# 贷款智能体API端点
+@app.post("/api/v1/loan-agent/chat")
+async def loan_agent_chat(request: dict):
+    """贷款智能体对话接口"""
+    try:
+        user_id = request.get("user_id")
+        message = request.get("message")
+        session_id = request.get("session_id")
+        
+        if not user_id or not message:
+            raise HTTPException(status_code=400, detail="缺少必要参数")
+        
+        result = await loan_agent.process_message(user_id, message, session_id)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "贷款智能体对话成功",
+                "data": result
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"贷款智能体对话失败: {e}")
+        raise HTTPException(status_code=500, detail=f"贷款智能体对话失败: {str(e)}")
+
+@app.get("/api/v1/loan-agent/profile/{user_id}")
+async def get_loan_profile(user_id: str):
+    """获取用户贷款档案"""
+    try:
+        if user_id in loan_agent.profiles:
+            profile = loan_agent.profiles[user_id]
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "success": True,
+                    "message": "获取用户档案成功",
+                    "data": {
+                        "profile": profile.__dict__,
+                        "status": profile.status.value,
+                        "next_actions": loan_agent._get_next_actions(profile)
+                    }
+                }
+            )
+        else:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "用户档案不存在"
+                }
+            )
+            
+    except Exception as e:
+        logger.error(f"获取用户档案失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取用户档案失败: {str(e)}")
+
+@app.post("/api/v1/loan-agent/reset/{user_id}")
+async def reset_loan_profile(user_id: str):
+    """重置用户贷款档案"""
+    try:
+        if user_id in loan_agent.profiles:
+            del loan_agent.profiles[user_id]
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "用户档案重置成功"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"重置用户档案失败: {e}")
+        raise HTTPException(status_code=500, detail=f"重置用户档案失败: {str(e)}")
+
+# 助贷招标API端点
+@app.post("/api/v1/rfq/create")
+async def create_rfq(request: dict):
+    """创建贷款招标需求"""
+    try:
+        borrower_profile = request.get("borrower_profile")
+        if not borrower_profile:
+            raise HTTPException(status_code=400, detail="缺少借款人档案信息")
+        
+        result = await loan_rfq_service.create_rfq(borrower_profile)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "RFQ创建成功",
+                "data": result
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"创建RFQ失败: {e}")
+        raise HTTPException(status_code=500, detail=f"创建RFQ失败: {str(e)}")
+
+@app.post("/api/v1/rfq/{rfq_id}/publish")
+async def publish_rfq(rfq_id: str, request: dict = None):
+    """发布RFQ"""
+    try:
+        deadline_hours = request.get("deadline_hours", 72) if request else 72
+        result = await loan_rfq_service.publish_rfq(rfq_id, deadline_hours)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "RFQ发布成功",
+                "data": result
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"发布RFQ失败: {e}")
+        raise HTTPException(status_code=500, detail=f"发布RFQ失败: {str(e)}")
+
+@app.post("/api/v1/rfq/{rfq_id}/bid")
+async def submit_bid(rfq_id: str, request: dict):
+    """提交投标方案"""
+    try:
+        lender_id = request.get("lender_id")
+        bid_data = request.get("bid_data")
+        
+        if not lender_id or not bid_data:
+            raise HTTPException(status_code=400, detail="缺少必要参数")
+        
+        result = await loan_rfq_service.submit_bid(rfq_id, lender_id, bid_data)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "投标提交成功",
+                "data": result
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"提交投标失败: {e}")
+        raise HTTPException(status_code=500, detail=f"提交投标失败: {str(e)}")
+
+@app.get("/api/v1/rfq/{rfq_id}/bids")
+async def get_rfq_bids(rfq_id: str):
+    """获取RFQ的所有投标"""
+    try:
+        result = await loan_rfq_service.get_rfq_bids(rfq_id)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "获取投标列表成功",
+                "data": result
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"获取投标列表失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取投标列表失败: {str(e)}")
+
+@app.post("/api/v1/rfq/{rfq_id}/award/{bid_id}")
+async def award_bid(rfq_id: str, bid_id: str):
+    """中标投标方案"""
+    try:
+        result = await loan_rfq_service.award_bid(rfq_id, bid_id)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "中标成功",
+                "data": result
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"中标处理失败: {e}")
+        raise HTTPException(status_code=500, detail=f"中标处理失败: {str(e)}")
+
+# AI增强服务API
+@app.post("/api/v1/ai/enhanced-chat")
+async def enhanced_chat(request: Dict[str, Any]):
+    """增强AI聊天接口"""
+    try:
+        user_id = request.get("user_id")
+        message = request.get("message")
+        session_id = request.get("session_id")
+        
+        if not user_id or not message:
+            raise HTTPException(status_code=400, detail="缺少必要参数")
+        
+        # 更新用户交互记录
+        personalization_engine.update_user_interaction(user_id, {
+            "query": message,
+            "query_type": "chat",
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        # 使用多轮对话管理器
+        if session_id not in multi_turn_dialog_manager.dialog_contexts:
+            multi_turn_dialog_manager.start_dialog(session_id, user_id, message)
+        
+        dialog_response = multi_turn_dialog_manager.process_message(session_id, message)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "增强AI聊天成功",
+                "data": {
+                    "response": dialog_response.response_text,
+                    "next_state": dialog_response.next_state.value,
+                    "suggested_questions": dialog_response.suggested_questions,
+                    "follow_up_actions": dialog_response.follow_up_actions,
+                    "confidence": dialog_response.confidence,
+                    "requires_clarification": dialog_response.requires_clarification
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"增强AI聊天失败: {e}")
+        raise HTTPException(status_code=500, detail=f"增强AI聊天失败: {str(e)}")
+
+@app.get("/api/v1/ai/personalized-recommendations/{user_id}")
+async def get_personalized_recommendations(user_id: str, max_recommendations: int = 5):
+    """获取个性化推荐"""
+    try:
+        recommendations = personalization_engine.generate_personalized_recommendations(
+            user_id, max_recommendations
+        )
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "个性化推荐获取成功",
+                "data": {
+                    "recommendations": [
+                        {
+                            "id": rec.id,
+                            "title": rec.title,
+                            "description": rec.description,
+                            "category": rec.category.value,
+                            "relevance_score": rec.relevance_score,
+                            "confidence": rec.confidence,
+                            "reason": rec.reason,
+                            "action_url": rec.action_url,
+                            "metadata": rec.metadata
+                        }
+                        for rec in recommendations
+                    ],
+                    "total_count": len(recommendations)
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"获取个性化推荐失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取个性化推荐失败: {str(e)}")
+
+@app.get("/api/v1/ai/enhanced-knowledge/search")
+async def search_enhanced_knowledge(query: str, category: str = None, max_results: int = 5):
+    """搜索增强知识库"""
+    try:
+        results = knowledge_enhancer.search_enhanced_knowledge(
+            query, category, max_results
+        )
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "增强知识库搜索成功",
+                "data": {
+                    "results": results,
+                    "total_count": len(results)
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"增强知识库搜索失败: {e}")
+        raise HTTPException(status_code=500, detail=f"增强知识库搜索失败: {str(e)}")
+
+@app.get("/api/v1/ai/dialog-summary/{session_id}")
+async def get_dialog_summary(session_id: str):
+    """获取对话摘要"""
+    try:
+        summary = multi_turn_dialog_manager.get_dialog_summary(session_id)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "对话摘要获取成功",
+                "data": summary
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"获取对话摘要失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取对话摘要失败: {str(e)}")
+
+@app.get("/api/v1/ai/user-profile/{user_id}")
+async def get_user_profile(user_id: str):
+    """获取用户画像"""
+    try:
+        profile = personalization_engine.get_user_profile(user_id)
+        
+        if not profile:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "用户画像不存在"
+                }
+            )
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "用户画像获取成功",
+                "data": {
+                    "user_id": profile.user_id,
+                    "profile_type": profile.profile_type.value,
+                    "interests": [interest.value for interest in profile.interests],
+                    "risk_tolerance": profile.risk_tolerance,
+                    "income_range": profile.income_range,
+                    "age_group": profile.age_group,
+                    "preferred_banks": profile.preferred_banks,
+                    "interaction_count": len(profile.interaction_history),
+                    "last_activity": profile.last_activity.isoformat(),
+                    "behavior_patterns": profile.behavior_patterns
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"获取用户画像失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取用户画像失败: {str(e)}")
+
+# 高级风控服务API
+@app.post("/api/v1/risk/advanced-assessment")
+async def advanced_risk_assessment(request: Dict[str, Any]):
+    """高级风险评估"""
+    try:
+        assessment = advanced_risk_engine.assess_risk(request)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "高级风险评估完成",
+                "data": {
+                    "overall_risk_score": assessment.overall_risk_score,
+                    "risk_level": assessment.risk_level.value,
+                    "approval_recommendation": assessment.approval_recommendation,
+                    "risk_factors": {factor.value: score for factor, score in assessment.risk_factors.items()},
+                    "risk_explanations": {factor.value: explanation for factor, explanation in assessment.risk_explanations.items()},
+                    "mitigation_suggestions": assessment.mitigation_suggestions,
+                    "confidence_score": assessment.confidence_score,
+                    "assessment_timestamp": assessment.assessment_timestamp.isoformat(),
+                    "model_version": assessment.model_version
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"高级风险评估失败: {e}")
+        raise HTTPException(status_code=500, detail=f"高级风险评估失败: {str(e)}")
+
+@app.get("/api/v1/risk/model-info")
+async def get_risk_model_info():
+    """获取风控模型信息"""
+    try:
+        model_info = advanced_risk_engine.get_risk_model_info()
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "风控模型信息获取成功",
+                "data": model_info
+            }
+        )
+    except Exception as e:
+        logger.error(f"获取风控模型信息失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取风控模型信息失败: {str(e)}")
+
+# 高级定价服务API
+@app.post("/api/v1/pricing/calculate")
+async def calculate_pricing(request: Dict[str, Any]):
+    """计算贷款定价"""
+    try:
+        loan_request = request.get("loan_request", {})
+        risk_assessment = request.get("risk_assessment", {})
+        pricing_strategy = request.get("pricing_strategy", "risk_based")
+        
+        from services.advanced_pricing_engine import PricingStrategy
+        strategy = PricingStrategy(pricing_strategy)
+        
+        pricing_result = advanced_pricing_engine.calculate_pricing(loan_request, risk_assessment, strategy)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "贷款定价计算完成",
+                "data": {
+                    "base_interest_rate": pricing_result.base_interest_rate,
+                    "final_interest_rate": pricing_result.final_interest_rate,
+                    "monthly_payment": pricing_result.monthly_payment,
+                    "total_interest": pricing_result.total_interest,
+                    "total_amount": pricing_result.total_amount,
+                    "fees": {fee.value: amount for fee, amount in pricing_result.fees.items()},
+                    "total_fees": pricing_result.total_fees,
+                    "apr": pricing_result.apr,
+                    "pricing_strategy": pricing_result.pricing_strategy.value,
+                    "risk_adjustment": pricing_result.risk_adjustment,
+                    "market_adjustment": pricing_result.market_adjustment,
+                    "profit_margin": pricing_result.profit_margin,
+                    "confidence_score": pricing_result.confidence_score,
+                    "pricing_timestamp": pricing_result.pricing_timestamp.isoformat(),
+                    "model_version": pricing_result.model_version
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"贷款定价计算失败: {e}")
+        raise HTTPException(status_code=500, detail=f"贷款定价计算失败: {str(e)}")
+
+@app.post("/api/v1/pricing/optimize")
+async def optimize_pricing(request: Dict[str, Any]):
+    """优化定价方案"""
+    try:
+        loan_request = request.get("loan_request", {})
+        risk_assessment = request.get("risk_assessment", {})
+        target_profit_margin = request.get("target_profit_margin", 0.05)
+        
+        pricing_scenarios = advanced_pricing_engine.optimize_pricing(loan_request, risk_assessment, target_profit_margin)
+        
+        scenarios_data = []
+        for scenario in pricing_scenarios:
+            scenarios_data.append({
+                "strategy": scenario.pricing_strategy.value,
+                "interest_rate": scenario.final_interest_rate,
+                "monthly_payment": scenario.monthly_payment,
+                "total_interest": scenario.total_interest,
+                "apr": scenario.apr,
+                "profit_margin": scenario.profit_margin,
+                "confidence_score": scenario.confidence_score
+            })
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "定价方案优化完成",
+                "data": {
+                    "scenarios": scenarios_data,
+                    "recommended": scenarios_data[0] if scenarios_data else None
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"定价方案优化失败: {e}")
+        raise HTTPException(status_code=500, detail=f"定价方案优化失败: {str(e)}")
+
+# 审批流程服务API
+@app.post("/api/v1/approval/process")
+async def process_approval(request: Dict[str, Any]):
+    """处理贷款审批"""
+    try:
+        application_data = request.get("application_data", {})
+        risk_assessment = request.get("risk_assessment", {})
+        
+        decision = approval_workflow_engine.process_application(application_data, risk_assessment)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "审批处理完成",
+                "data": {
+                    "decision_id": decision.decision_id,
+                    "application_id": decision.application_id,
+                    "status": decision.status.value,
+                    "approval_level": decision.approval_level.value,
+                    "decision_reason": decision.decision_reason,
+                    "conditions": decision.conditions,
+                    "risk_factors": decision.risk_factors,
+                    "approval_amount": decision.approval_amount,
+                    "approved_term": decision.approved_term,
+                    "special_conditions": decision.special_conditions,
+                    "decision_timestamp": decision.decision_timestamp.isoformat(),
+                    "decision_officer": decision.decision_officer,
+                    "confidence_score": decision.confidence_score
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"审批处理失败: {e}")
+        raise HTTPException(status_code=500, detail=f"审批处理失败: {str(e)}")
+
+@app.get("/api/v1/approval/status/{application_id}")
+async def get_approval_status(application_id: str):
+    """获取审批状态"""
+    try:
+        decision = approval_workflow_engine.get_approval_status(application_id)
+        
+        if not decision:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "审批记录不存在"
+                }
+            )
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "审批状态获取成功",
+                "data": {
+                    "decision_id": decision.decision_id,
+                    "status": decision.status.value,
+                    "approval_level": decision.approval_level.value,
+                    "decision_reason": decision.decision_reason,
+                    "decision_timestamp": decision.decision_timestamp.isoformat(),
+                    "decision_officer": decision.decision_officer
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"获取审批状态失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取审批状态失败: {str(e)}")
+
+# 合规检查服务API
+@app.post("/api/v1/compliance/check")
+async def check_compliance(request: Dict[str, Any]):
+    """执行合规检查"""
+    try:
+        application_data = request.get("application_data", {})
+        risk_assessment = request.get("risk_assessment", {})
+        
+        compliance_report = compliance_checker.check_compliance(application_data, risk_assessment)
+        
+        checks_data = []
+        for check in compliance_report.checks:
+            checks_data.append({
+                "rule_type": check.rule_type.value,
+                "compliance_level": check.compliance_level.value,
+                "is_compliant": check.is_compliant,
+                "violation_details": check.violation_details,
+                "risk_score": check.risk_score,
+                "recommendations": check.recommendations
+            })
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "合规检查完成",
+                "data": {
+                    "report_id": compliance_report.report_id,
+                    "application_id": compliance_report.application_id,
+                    "overall_compliance_score": compliance_report.overall_compliance_score,
+                    "compliance_level": compliance_report.compliance_level.value,
+                    "checks": checks_data,
+                    "critical_violations": compliance_report.critical_violations,
+                    "recommendations": compliance_report.recommendations,
+                    "report_timestamp": compliance_report.report_timestamp.isoformat(),
+                    "requires_manual_review": compliance_report.requires_manual_review
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"合规检查失败: {e}")
+        raise HTTPException(status_code=500, detail=f"合规检查失败: {str(e)}")
+
+# 第三方服务集成API
+@app.post("/api/v1/third-party/credit-report")
+async def get_credit_report(request: Dict[str, Any]):
+    """获取征信报告"""
+    try:
+        user_id = request.get("user_id")
+        id_number = request.get("id_number")
+        
+        if not user_id or not id_number:
+            raise HTTPException(status_code=400, detail="缺少必要参数")
+        
+        response = await third_party_integrator.get_credit_report(user_id, id_number)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": response.success,
+                "message": "征信报告获取完成",
+                "data": {
+                    "service_name": response.service_name,
+                    "data": response.data,
+                    "response_time": response.response_time,
+                    "timestamp": response.timestamp.isoformat(),
+                    "request_id": response.request_id
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"征信报告获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"征信报告获取失败: {str(e)}")
+
+@app.post("/api/v1/third-party/verify-identity")
+async def verify_identity(request: Dict[str, Any]):
+    """身份验证"""
+    try:
+        id_number = request.get("id_number")
+        name = request.get("name")
+        phone = request.get("phone")
+        
+        if not all([id_number, name, phone]):
+            raise HTTPException(status_code=400, detail="缺少必要参数")
+        
+        response = await third_party_integrator.verify_identity(id_number, name, phone)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": response.success,
+                "message": "身份验证完成",
+                "data": {
+                    "service_name": response.service_name,
+                    "data": response.data,
+                    "response_time": response.response_time,
+                    "timestamp": response.timestamp.isoformat(),
+                    "request_id": response.request_id
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"身份验证失败: {e}")
+        raise HTTPException(status_code=500, detail=f"身份验证失败: {str(e)}")
+
+@app.get("/api/v1/third-party/service-status")
+async def get_service_status():
+    """获取第三方服务状态"""
+    try:
+        status_info = await third_party_integrator.get_service_status()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "服务状态获取成功",
+                "data": status_info
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"服务状态获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"服务状态获取失败: {str(e)}")
+
+# 数据同步API
+@app.post("/api/v1/sync/add-task")
+async def add_sync_task(request: Dict[str, Any]):
+    """添加同步任务"""
+    try:
+        from services.data_sync_manager import DataSource, SyncType
+        
+        source = DataSource(request.get("source", "database"))
+        target = DataSource(request.get("target", "cache"))
+        sync_type = SyncType(request.get("sync_type", "real_time"))
+        data_key = request.get("data_key")
+        data = request.get("data", {})
+        priority = request.get("priority", 1)
+        
+        if not data_key:
+            raise HTTPException(status_code=400, detail="缺少data_key参数")
+        
+        task_id = await data_sync_manager.add_sync_task(
+            source, target, sync_type, data_key, data, priority
+        )
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "同步任务添加成功",
+                "data": {"task_id": task_id}
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"同步任务添加失败: {e}")
+        raise HTTPException(status_code=500, detail=f"同步任务添加失败: {str(e)}")
+
+@app.get("/api/v1/sync/status")
+async def get_sync_status():
+    """获取同步状态"""
+    try:
+        status_info = await data_sync_manager.get_sync_status()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "同步状态获取成功",
+                "data": status_info
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"同步状态获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"同步状态获取失败: {str(e)}")
+
+@app.get("/api/v1/sync/task/{task_id}")
+async def get_task_details(task_id: str):
+    """获取任务详情"""
+    try:
+        task_details = await data_sync_manager.get_task_details(task_id)
+        
+        if not task_details:
+            return JSONResponse(
+                status_code=404,
+                content={
+                    "success": False,
+                    "message": "任务不存在"
+                }
+            )
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "任务详情获取成功",
+                "data": task_details
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"任务详情获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"任务详情获取失败: {str(e)}")
+
+# API稳定性API
+@app.get("/api/v1/stability/metrics")
+async def get_stability_metrics():
+    """获取API稳定性指标"""
+    try:
+        metrics = api_stability_manager.get_all_metrics()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "稳定性指标获取成功",
+                "data": metrics
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"稳定性指标获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"稳定性指标获取失败: {str(e)}")
+
+@app.get("/api/v1/stability/health")
+async def get_stability_health():
+    """获取API稳定性健康状态"""
+    try:
+        health_info = api_stability_manager.health_check()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "稳定性健康检查完成",
+                "data": health_info
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"稳定性健康检查失败: {e}")
+        raise HTTPException(status_code=500, detail=f"稳定性健康检查失败: {str(e)}")
+
+# 监控系统API
+@app.get("/api/v1/monitoring/system-status")
+async def get_system_status():
+    """获取系统状态"""
+    try:
+        status_info = system_monitor.get_system_status()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "系统状态获取成功",
+                "data": status_info
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"系统状态获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"系统状态获取失败: {str(e)}")
+
+@app.get("/api/v1/monitoring/metrics")
+async def get_monitoring_metrics():
+    """获取监控指标"""
+    try:
+        metrics_summary = system_monitor.get_metrics_summary()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "监控指标获取成功",
+                "data": metrics_summary
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"监控指标获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"监控指标获取失败: {str(e)}")
+
+@app.get("/api/v1/monitoring/alerts")
+async def get_monitoring_alerts():
+    """获取监控告警"""
+    try:
+        alert_summary = system_monitor.get_alert_summary()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "监控告警获取成功",
+                "data": alert_summary
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"监控告警获取失败: {e}")
+        raise HTTPException(status_code=500, detail=f"监控告警获取失败: {str(e)}")
+
 @app.post("/api/v1/rag/process-document")
 async def process_document(
     file: UploadFile = File(...),
@@ -857,7 +1831,7 @@ async def process_document(
         except Exception as e:
             logger.warning(f"清理临时文件失败: {e}")
         
-        return AIResponse(
+        response_data = AIResponse(
             success=True,
             message="文档处理成功",
             data={
@@ -872,6 +1846,8 @@ async def process_document(
                 "document_type": result.get("document_type", "unknown")
             }
         )
+        
+        return response_data
         
     except Exception as e:
         logger.error(f"文档处理失败: {e}")
@@ -1067,6 +2043,12 @@ async def search_knowledge_advanced(request: Dict[str, Any]):
             )
         elif search_type == "text":
             results = await vector_rag_service.search_knowledge_text(
+                query=query,
+                category=category,
+                max_results=max_results
+            )
+        elif search_type == "simple":
+            results = await vector_rag_service.search_knowledge_simple(
                 query=query,
                 category=category,
                 max_results=max_results

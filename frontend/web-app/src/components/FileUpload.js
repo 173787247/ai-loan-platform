@@ -80,9 +80,13 @@ const FileUpload = ({ onFileUpload, onClose, isVisible }) => {
           fileSize: file.size
         }));
 
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000'}/api/v1/rag/process-document`, {
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1'}/rag/process-document`, {
           method: 'POST',
-          body: formData
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+          },
+          credentials: 'include'
         });
 
         if (!response.ok) {

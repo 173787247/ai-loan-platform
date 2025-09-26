@@ -59,3 +59,5 @@ pgvector==0.2.4
 python-dotenv==1.0.0
 loguru==0.7.2
 tqdm==4.66.1
+psutil==5.9.6
+aiohttp==3.9.1
