@@ -24,6 +24,7 @@ import markdown
 from bs4 import BeautifulSoup
 import magic
 from loguru import logger
+from .advanced_ocr import advanced_ocr_service, OCREngine
 
 class DocumentProcessor:
     """文档处理服务类"""
@@ -43,9 +44,9 @@ class DocumentProcessor:
         ]
         self.logger = logger
         
-    def process_document(self, file_path: str, file_type: str) -> Dict[str, Any]:
+    async def process_document(self, file_path: str, file_type: str) -> Dict[str, Any]:
         """
-        处理文档
+        处理文档（异步版本）
         
         Args:
             file_path: 文件路径
@@ -61,8 +62,8 @@ class DocumentProcessor:
             if not self._is_supported_type(file_type):
                 raise ValueError(f"不支持的文件类型: {file_type}")
             
-            # 提取文本
-            text = self._extract_text(file_path, file_type)
+            # 提取文本（异步）
+            text = await self._extract_text_async(file_path, file_type)
             
             # 分类文档
             doc_type = self._classify_document(text)
@@ -96,8 +97,41 @@ class DocumentProcessor:
         """检查文件类型是否支持"""
         return any(file_type.lower().endswith(ext) for ext in self.supported_types)
     
+    async def _extract_text_async(self, file_path: str, file_type: str) -> str:
+        """提取文档文本（异步版本）"""
+        try:
+            file_ext = file_type.lower()
+            
+            # PDF文档
+            if file_ext.endswith('pdf'):
+                return self._extract_pdf_text(file_path)
+            
+            # Word文档
+            elif file_ext.endswith(('doc', 'docx')):
+                return self._extract_word_text(file_path)
+            
+            # Excel表格
+            elif file_ext.endswith(('xls', 'xlsx')):
+                return self._extract_excel_text(file_path)
+            
+            # PowerPoint演示文稿
+            elif file_ext.endswith(('ppt', 'pptx')):
+                return self._extract_ppt_text(file_path)
+            
+            # 图片文件（使用高级OCR）
+            elif file_ext.endswith(('jpg', 'jpeg', 'png', 'bmp', 'tiff', 'gif')):
+                return await self._extract_image_text(file_path)
+            
+            # 其他文件类型
+            else:
+                return self._extract_text(file_path, file_type)
+                
+        except Exception as e:
+            self.logger.error(f"异步文本提取失败: {file_path}, 错误: {str(e)}")
+            return ""
+    
     def _extract_text(self, file_path: str, file_type: str) -> str:
-        """提取文档文本"""
+        """提取文档文本（同步版本）"""
         try:
             file_ext = file_type.lower()
             
@@ -529,8 +563,36 @@ class DocumentProcessor:
             self.logger.error(f"HTML文件读取失败: {e}")
             return ""
     
-    def _extract_image_text(self, file_path: str) -> str:
-        """提取图片文本（增强OCR）"""
+    async def _extract_image_text(self, file_path: str) -> str:
+        """提取图片文本（使用高级OCR）"""
+        try:
+            # 使用高级OCR服务
+            ocr_results = await advanced_ocr_service.recognize_text(
+                file_path, 
+                engines=[OCREngine.PADDLEOCR, OCREngine.TESSERACT],
+                language="chi_sim+eng"
+            )
+            
+            if not ocr_results:
+                self.logger.warning("所有OCR引擎都失败了，尝试传统方法")
+                return self._fallback_ocr(file_path)
+            
+            # 获取最佳结果
+            best_result = await advanced_ocr_service.get_best_result(ocr_results)
+            
+            if best_result and best_result.text.strip():
+                self.logger.info(f"OCR识别成功: {best_result.engine}, 置信度: {best_result.confidence:.3f}")
+                return best_result.text.strip()
+            else:
+                self.logger.warning("高级OCR未识别到文本，尝试传统方法")
+                return self._fallback_ocr(file_path)
+            
+        except Exception as e:
+            self.logger.error(f"高级OCR处理失败: {file_path}, 错误: {str(e)}")
+            return self._fallback_ocr(file_path)
+    
+    def _fallback_ocr(self, file_path: str) -> str:
+        """传统OCR方法作为备用"""
         try:
             # 读取图片
             image = cv2.imread(file_path)
@@ -549,7 +611,7 @@ class DocumentProcessor:
                     if text.strip():
                         all_text.append(text.strip())
                 except Exception as e:
-                    self.logger.warning(f"OCR处理失败: {e}")
+                    self.logger.warning(f"传统OCR处理失败: {e}")
                     continue
             
             # 合并所有文本
@@ -561,7 +623,7 @@ class DocumentProcessor:
             return final_text
             
         except Exception as e:
-            self.logger.error(f"图片OCR处理失败: {file_path}, 错误: {str(e)}")
+            self.logger.error(f"传统OCR处理失败: {file_path}, 错误: {str(e)}")
             return ""
     
     def _preprocess_image_for_ocr(self, image: np.ndarray) -> List[np.ndarray]:

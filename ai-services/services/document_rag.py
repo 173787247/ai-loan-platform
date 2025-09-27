@@ -44,9 +44,9 @@ class DocumentRAGService:
     ) -> Dict[str, Any]:
         """处理文档并索引到向量数据库"""
         try:
-            # 1. 处理文档
+            # 1. 处理文档（异步）
             self.logger.info(f"开始处理文档: {file_path}")
-            doc_result = self.document_processor.process_document(file_path, file_type)
+            doc_result = await self.document_processor.process_document(file_path, file_type)
             
             if not doc_result.get("text"):
                 raise ValueError("文档处理失败，未提取到文本内容")

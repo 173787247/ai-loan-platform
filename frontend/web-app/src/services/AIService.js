@@ -3,7 +3,7 @@
  */
 class AIService {
   constructor() {
-    this.baseURL = 'http://localhost:8000';
+    this.baseURL = '/ai';
   }
 
   async request(endpoint, options = {}) {
@@ -74,10 +74,12 @@ class AIService {
 
   // 搜索知识库
   async searchKnowledge(query) {
-    return this.request('/api/v1/chat/knowledge/search', {
-      method: 'GET',
+    return this.request('/api/v1/rag/search', {
+      method: 'POST',
       body: JSON.stringify({
-        query: query
+        query: query,
+        search_type: 'simple',
+        max_results: 5
       })
     });
   }

@@ -46,6 +46,8 @@ from services.third_party_integrator import third_party_integrator
 from services.data_sync_manager import data_sync_manager
 from services.api_stability_manager import api_stability_manager
 from services.monitoring_system import system_monitor
+from services.performance_optimizer import performance_optimizer
+from services.advanced_ocr import advanced_ocr_service
 from middleware.error_handler import ErrorHandler, PerformanceMiddleware, LoggingMiddleware
 from loguru import logger
 
@@ -124,6 +126,21 @@ async def startup_event():
         await third_party_integrator.initialize()
         await data_sync_manager.initialize()
         await system_monitor.start_monitoring()
+        
+        # 初始化性能优化器
+        await performance_optimizer.initialize()
+        await performance_optimizer.connection_pool_manager.create_pool(
+            "main_db", 
+            {
+                "host": os.getenv("POSTGRES_HOST", "localhost"),
+                "port": int(os.getenv("POSTGRES_PORT", "5432")),
+                "database": os.getenv("POSTGRES_DB", "ai_loan_rag"),
+                "user": os.getenv("POSTGRES_USER", "ai_loan"),
+                "password": os.getenv("POSTGRES_PASSWORD", "ai_loan123"),
+                "min_size": 5,
+                "max_size": 20
+            }
+        )
         
         # 配置API稳定性管理器
         from services.api_stability_manager import CircuitBreakerConfig, RateLimitConfig
@@ -2196,6 +2213,132 @@ async def get_credit_providers():
             message=f"获取提供商失败: {str(e)}",
             data={}
         )
+
+# 性能优化API
+@app.get("/api/v1/performance/summary")
+async def get_performance_summary():
+    """获取性能摘要"""
+    try:
+        summary = await performance_optimizer.get_performance_summary()
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "性能摘要获取成功",
+                "data": summary
+            }
+        )
+    except Exception as e:
+        logger.error(f"获取性能摘要失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取性能摘要失败: {str(e)}")
+
+@app.post("/api/v1/performance/optimize")
+async def optimize_performance():
+    """执行性能优化"""
+    try:
+        await performance_optimizer.optimize_performance()
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "性能优化完成"
+            }
+        )
+    except Exception as e:
+        logger.error(f"性能优化失败: {e}")
+        raise HTTPException(status_code=500, detail=f"性能优化失败: {str(e)}")
+
+@app.get("/api/v1/performance/cache/stats")
+async def get_cache_stats():
+    """获取缓存统计"""
+    try:
+        stats = performance_optimizer.cache_manager.get_stats()
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "缓存统计获取成功",
+                "data": stats
+            }
+        )
+    except Exception as e:
+        logger.error(f"获取缓存统计失败: {e}")
+        raise HTTPException(status_code=500, detail=f"获取缓存统计失败: {str(e)}")
+
+@app.post("/api/v1/performance/cache/clear")
+async def clear_cache():
+    """清空缓存"""
+    try:
+        await performance_optimizer.cache_manager.clear()
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "缓存清空成功"
+            }
+        )
+    except Exception as e:
+        logger.error(f"清空缓存失败: {e}")
+        raise HTTPException(status_code=500, detail=f"清空缓存失败: {str(e)}")
+
+# 高级OCR API
+@app.post("/api/v1/ocr/recognize")
+async def recognize_text(request: Dict[str, Any]):
+    """OCR文字识别"""
+    try:
+        image_path = request.get("image_path")
+        engines = request.get("engines", ["paddleocr", "tesseract"])
+        language = request.get("language", "chi_sim+eng")
+        
+        if not image_path or not os.path.exists(image_path):
+            raise HTTPException(status_code=400, detail="图片路径无效")
+        
+        # 转换引擎名称
+        ocr_engines = []
+        for engine in engines:
+            if engine == "paddleocr":
+                ocr_engines.append(OCREngine.PADDLEOCR)
+            elif engine == "tesseract":
+                ocr_engines.append(OCREngine.TESSERACT)
+            elif engine == "baidu":
+                ocr_engines.append(OCREngine.BAIDU)
+        
+        # 执行OCR识别
+        results = await advanced_ocr_service.recognize_text(
+            image_path, 
+            ocr_engines, 
+            language
+        )
+        
+        # 获取最佳结果
+        best_result = await advanced_ocr_service.get_best_result(results)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "message": "OCR识别完成",
+                "data": {
+                    "text": best_result.text if best_result else "",
+                    "confidence": best_result.confidence if best_result else 0.0,
+                    "engine": best_result.engine if best_result else "none",
+                    "processing_time": best_result.processing_time if best_result else 0.0,
+                    "all_results": [
+                        {
+                            "text": result.text,
+                            "confidence": result.confidence,
+                            "engine": result.engine,
+                            "processing_time": result.processing_time
+                        }
+                        for result in results
+                    ]
+                }
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"OCR识别失败: {e}")
+        raise HTTPException(status_code=500, detail=f"OCR识别失败: {str(e)}")
 
 if __name__ == "__main__":
     uvicorn.run(

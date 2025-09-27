@@ -441,7 +441,7 @@ class VectorRAGService:
         """简单搜索（优先向量，回退到文本）"""
         try:
             # 首先尝试向量搜索
-            vector_results = await self.search_knowledge_vector(query, category, max_results, similarity_threshold=0.1)
+            vector_results = await self.search_knowledge_vector(query, category, 0.1, max_results)
             if vector_results:
                 logger.info(f"向量搜索成功，找到 {len(vector_results)} 条结果")
                 return vector_results
