@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能贷款推荐测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .product-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .product-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .score {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 智能贷款推荐系统测试</h1>
+        
+        <form id="recommendationForm">
+            <div class="form-group">
+                <label for="monthlyIncome">月收入 (元):</label>
+                <input type="number" id="monthlyIncome" value="12000" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="creditScore">信用评分:</label>
+                <input type="number" id="creditScore" value="750" min="300" max="850" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="loanAmount">贷款金额 (元):</label>
+                <input type="number" id="loanAmount" value="200000" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="loanTerm">贷款期限 (月):</label>
+                <input type="number" id="loanTerm" value="36" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="age">年龄:</label>
+                <input type="number" id="age" value="28" min="18" max="65" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="urgency">紧急程度:</label>
+                <select id="urgency">
+                    <option value="low">不急</option>
+                    <option value="normal" selected>正常</option>
+                    <option value="urgent">紧急</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="riskTolerance">风险偏好:</label>
+                <select id="riskTolerance">
+                    <option value="low">保守</option>
+                    <option value="medium" selected>中等</option>
+                    <option value="high">激进</option>
+                </select>
+            </div>
+            
+            <button type="submit">🚀 获取智能推荐</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('recommendationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                monthly_income: parseInt(document.getElementById('monthlyIncome').value),
+                credit_score: parseInt(document.getElementById('creditScore').value),
+                loan_amount: parseInt(document.getElementById('loanAmount').value),
+                loan_term: parseInt(document.getElementById('loanTerm').value),
+                age: parseInt(document.getElementById('age').value),
+                urgency: document.getElementById('urgency').value,
+                risk_tolerance: document.getElementById('riskTolerance').value
+            };
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '🔄 正在分析用户画像并计算推荐...';
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/loan-recommendation/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayRecommendations(data.data);
+                } else {
+                    resultDiv.innerHTML = `❌ 推荐失败: ${data.error}`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}`;
+            }
+        });
+        
+        function displayRecommendations(data) {
+            const resultDiv = document.getElementById('result');
+            
+            let html = `
+                <h2>🎯 智能贷款推荐分析</h2>
+                <p><strong>${data.recommendation_report.user_profile_summary}</strong></p>
+                
+                <h3>📊 推荐理由</h3>
+                <p>${data.recommendation_report.recommendation_reasoning}</p>
+                
+                <h3>🏆 推荐产品排名</h3>
+            `;
+            
+            data.scored_products.slice(0, 5).forEach((product, index) => {
+                html += `
+                    <div class="product-card">
+                        <div class="product-header">
+                            ${index + 1}. ${product.bank_name} - ${product.product_name}
+                        </div>
+                        <div class="product-details">
+                            <div class="detail-item">
+                                <span>综合评分:</span>
+                                <span class="score">${product.score.toFixed(1)}/10</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>适合度:</span>
+                                <span>${product.suitability}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>预估利率:</span>
+                                <span>${(product.product_info.min_rate * 100).toFixed(1)}%-${(product.product_info.max_rate * 100).toFixed(1)}%</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>最高额度:</span>
+                                <span>${product.product_info.max_amount.toLocaleString()}元</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>审批时间:</span>
+                                <span>${product.product_info.approval_time}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>特色功能:</span>
+                                <span>${product.product_info.special_features.join(', ')}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            if (data.recommendation_report.cost_analysis) {
+                html += `<h3>💰 成本分析</h3><p>${data.recommendation_report.cost_analysis}</p>`;
+            }
+            
+            if (data.recommendation_report.risk_analysis) {
+                html += `<h3>⚠️ 风险分析</h3><p>${data.recommendation_report.risk_analysis}</p>`;
+            }
+            
+            if (data.recommendation_report.next_steps) {
+                html += `<h3>📋 下一步建议</h3><ul>`;
+                data.recommendation_report.next_steps.forEach(step => {
+                    html += `<li>${step}</li>`;
+                });
+                html += `</ul>`;
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

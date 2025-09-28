@@ -285,6 +285,320 @@ async def health_check():
         "timestamp": datetime.now().isoformat()
     }
 
+# 学习状态监控接口
+@app.get("/api/v1/learning/status")
+async def get_learning_status():
+    """获取学习状态"""
+    try:
+        if ai_chatbot and ai_chatbot.smart_learning:
+            status = await ai_chatbot.smart_learning.get_learning_status()
+            return {
+                "success": True,
+                "data": status
+            }
+        else:
+            return {
+                "success": False,
+                "error": "智能学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"获取学习状态失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/api/v1/learning/trigger")
+async def trigger_learning(request: dict):
+    """手动触发学习"""
+    try:
+        query = request.get("query", "")
+        if not query:
+            return {
+                "success": False,
+                "error": "查询内容不能为空"
+            }
+        
+        if ai_chatbot and ai_chatbot.smart_learning:
+            result = await ai_chatbot.smart_learning.trigger_learning(query)
+            return {
+                "success": True,
+                "data": result
+            }
+        else:
+            return {
+                "success": False,
+                "error": "智能学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"触发学习失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+# 自主机器学习接口
+@app.post("/api/v1/autonomous-learning/start")
+async def start_autonomous_learning():
+    """启动自主机器学习"""
+    try:
+        if ai_chatbot and ai_chatbot.autonomous_learning:
+            await ai_chatbot.autonomous_learning.start_autonomous_learning()
+            return {
+                "success": True,
+                "message": "自主机器学习已启动"
+            }
+        else:
+            return {
+                "success": False,
+                "error": "自主机器学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"启动自主机器学习失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.get("/api/v1/autonomous-learning/status")
+async def get_autonomous_learning_status():
+    """获取自主机器学习状态"""
+    try:
+        if ai_chatbot and ai_chatbot.autonomous_learning:
+            status = await ai_chatbot.autonomous_learning.get_learning_status()
+            return {
+                "success": True,
+                "data": status
+            }
+        else:
+            return {
+                "success": False,
+                "error": "自主机器学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"获取自主机器学习状态失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/api/v1/autonomous-learning/stop")
+async def stop_autonomous_learning():
+    """停止自主机器学习"""
+    try:
+        if ai_chatbot and ai_chatbot.autonomous_learning:
+            await ai_chatbot.autonomous_learning.stop_learning()
+            return {
+                "success": True,
+                "message": "自主机器学习已停止"
+            }
+        else:
+            return {
+                "success": False,
+                "error": "自主机器学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"停止自主机器学习失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+# 银行清单学习接口
+@app.post("/api/v1/bank-list-learning/start")
+async def start_bank_list_learning():
+    """启动银行清单学习"""
+    try:
+        if ai_chatbot and ai_chatbot.bank_list_learning:
+            await ai_chatbot.bank_list_learning.start_bank_list_learning()
+            return {
+                "success": True,
+                "message": "银行清单学习已启动"
+            }
+        else:
+            return {
+                "success": False,
+                "error": "银行清单学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"启动银行清单学习失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.get("/api/v1/bank-list-learning/status")
+async def get_bank_list_learning_status():
+    """获取银行清单学习状态"""
+    try:
+        if ai_chatbot and ai_chatbot.bank_list_learning:
+            status = await ai_chatbot.bank_list_learning.get_learning_status()
+            return {
+                "success": True,
+                "data": status
+            }
+        else:
+            return {
+                "success": False,
+                "error": "银行清单学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"获取银行清单学习状态失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.get("/api/v1/bank-list-learning/bank-list")
+async def get_bank_list():
+    """获取银行清单"""
+    try:
+        if ai_chatbot and ai_chatbot.bank_list_learning:
+            bank_list = await ai_chatbot.bank_list_learning.get_bank_list()
+            return {
+                "success": True,
+                "data": bank_list
+            }
+        else:
+            return {
+                "success": False,
+                "error": "银行清单学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"获取银行清单失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/api/v1/bank-list-learning/stop")
+async def stop_bank_list_learning():
+    """停止银行清单学习"""
+    try:
+        if ai_chatbot and ai_chatbot.bank_list_learning:
+            await ai_chatbot.bank_list_learning.stop_learning()
+            return {
+                "success": True,
+                "message": "银行清单学习已停止"
+            }
+        else:
+            return {
+                "success": False,
+                "error": "银行清单学习系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"停止银行清单学习失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+# 智能贷款推荐接口
+@app.post("/api/v1/loan-recommendation/analyze")
+async def analyze_user_and_recommend(user_info: dict):
+    """分析用户画像并推荐贷款产品"""
+    try:
+        if ai_chatbot and ai_chatbot.loan_recommendation:
+            # 分析用户画像
+            user_profile = await ai_chatbot.loan_recommendation.analyze_user_profile(user_info)
+            
+            # 计算产品评分
+            scored_products = await ai_chatbot.loan_recommendation.calculate_product_scores(user_profile)
+            
+            # 生成推荐报告
+            recommendation_report = await ai_chatbot.loan_recommendation.generate_recommendation_report(
+                user_profile, scored_products
+            )
+            
+            return {
+                "success": True,
+                "data": {
+                    "user_profile": user_profile,
+                    "scored_products": scored_products[:10],  # 返回前10个产品
+                    "recommendation_report": recommendation_report
+                }
+            }
+        else:
+            return {
+                "success": False,
+                "error": "智能贷款推荐系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"贷款推荐分析失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.get("/api/v1/loan-recommendation/products")
+async def get_all_products():
+    """获取所有银行产品信息"""
+    try:
+        if ai_chatbot and ai_chatbot.loan_recommendation:
+            products = ai_chatbot.loan_recommendation.bank_products_db
+            return {
+                "success": True,
+                "data": products
+            }
+        else:
+            return {
+                "success": False,
+                "error": "智能贷款推荐系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"获取产品信息失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@app.post("/api/v1/loan-recommendation/compare")
+async def compare_products(products_to_compare: dict):
+    """对比多个产品"""
+    try:
+        if ai_chatbot and ai_chatbot.loan_recommendation:
+            product_names = products_to_compare.get("products", [])
+            user_info = products_to_compare.get("user_info", {})
+            
+            # 分析用户画像
+            user_profile = await ai_chatbot.loan_recommendation.analyze_user_profile(user_info)
+            
+            # 获取指定产品的评分
+            all_scored_products = await ai_chatbot.loan_recommendation.calculate_product_scores(user_profile)
+            
+            # 筛选指定产品
+            compared_products = []
+            for product in all_scored_products:
+                product_key = f"{product['bank_name']}-{product['product_name']}"
+                if product_key in product_names:
+                    compared_products.append(product)
+            
+            # 按评分排序
+            compared_products.sort(key=lambda x: x["score"], reverse=True)
+            
+            return {
+                "success": True,
+                "data": {
+                    "user_profile": user_profile,
+                    "compared_products": compared_products,
+                    "comparison_summary": {
+                        "best_product": compared_products[0] if compared_products else None,
+                        "total_products": len(compared_products)
+                    }
+                }
+            }
+        else:
+            return {
+                "success": False,
+                "error": "智能贷款推荐系统未启用"
+            }
+    except Exception as e:
+        logger.error(f"产品对比失败: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 # 文档处理接口
 @app.post("/api/v1/ai/document/process", response_model=AIResponse)
 async def process_document(file: UploadFile = File(...)):

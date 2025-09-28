@@ -48,7 +48,11 @@ class VectorRAGService:
         """初始化数据库连接池"""
         try:
             self.connection_pool = await asyncpg.create_pool(
-                **self.db_config,
+                host=self.db_config["host"],
+                port=self.db_config["port"],
+                database=self.db_config["database"],
+                user=self.db_config["user"],
+                password=self.db_config["password"],
                 min_size=10,  # 增加最小连接数
                 max_size=50,  # 增加最大连接数
                 max_queries=50000,  # 每个连接最大查询数

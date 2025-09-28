@@ -21,7 +21,57 @@ class AIChatbot:
     def __init__(self, llm_service=None, vector_rag_service=None):
         self.llm_service = llm_service
         self.vector_rag_service = vector_rag_service
+        self.rag_kb = vector_rag_service  # 添加rag_kb属性
         self.sessions: Dict[str, Dict[str, Any]] = {}
+        
+        # 导入自主学习服务
+        try:
+            from .auto_learning_bank import auto_learning_bank_service
+            self.auto_learning_service = auto_learning_bank_service
+            self.auto_learning_service.vector_rag_service = vector_rag_service
+        except ImportError:
+            logger.warning("自主学习服务导入失败")
+            self.auto_learning_service = None
+        
+        # 导入智能学习系统
+        try:
+            from .smart_learning_system import smart_learning_system
+            self.smart_learning = smart_learning_system
+            self.smart_learning.vector_rag_service = vector_rag_service
+            self.smart_learning.llm_service = llm_service
+        except ImportError:
+            logger.warning("智能学习系统导入失败")
+            self.smart_learning = None
+        
+        # 导入自主机器学习系统
+        try:
+            from .autonomous_learning import autonomous_learning_system
+            self.autonomous_learning = autonomous_learning_system
+            self.autonomous_learning.vector_rag_service = vector_rag_service
+            self.autonomous_learning.llm_service = llm_service
+        except ImportError:
+            logger.warning("自主机器学习系统导入失败")
+            self.autonomous_learning = None
+
+        # 导入银行清单学习系统
+        try:
+            from .bank_list_learning import bank_list_learning_system
+            self.bank_list_learning = bank_list_learning_system
+            self.bank_list_learning.vector_rag_service = vector_rag_service
+            self.bank_list_learning.llm_service = llm_service
+        except ImportError:
+            logger.warning("银行清单学习系统导入失败")
+            self.bank_list_learning = None
+
+        # 导入智能贷款推荐系统
+        try:
+            from .loan_recommendation_system import loan_recommendation_system
+            self.loan_recommendation = loan_recommendation_system
+            self.loan_recommendation.vector_rag_service = vector_rag_service
+            self.loan_recommendation.llm_service = llm_service
+        except ImportError:
+            logger.warning("智能贷款推荐系统导入失败")
+            self.loan_recommendation = None
     
     def create_session(self, user_id: str, role: ChatbotRole) -> str:
         """创建聊天会话"""
@@ -74,30 +124,157 @@ class AIChatbot:
             }
     
     async def generate_response(self, messages: List[Dict[str, str]], context: Dict[str, Any] = None) -> str:
-        """生成AI回复 - 基于RAG+LLM"""
+        """生成AI回复 - 基于RAG+LLM+智能推荐"""
         try:
             user_message = messages[-1]["content"]
             logger.info(f"开始生成回复，用户问题: {user_message}")
-            
-            # 1. 尝试使用LLM直接回答
-            if self.llm_service:
+
+            # 0. 检查是否需要智能推荐
+            if self._is_loan_recommendation_request(user_message):
                 try:
-                    logger.info("尝试使用LLM生成回复")
-                    response = await self._generate_llm_response_async(user_message)
+                    logger.info("检测到贷款推荐请求，使用智能推荐系统")
+                    recommendation_response = await self._generate_loan_recommendation_response(user_message, context)
+                    if recommendation_response:
+                        return recommendation_response
+                except Exception as e:
+                    logger.error(f"智能推荐生成失败: {e}")
+
+            # 1. 使用RAG检索相关知识
+            knowledge_results = []
+            if self.vector_rag_service:
+                try:
+                    logger.info("开始RAG检索...")
+                    knowledge_results = await self.vector_rag_service.search_knowledge_hybrid(
+                        query=user_message,
+                        max_results=5
+                    )
+                    logger.info(f"RAG检索完成，找到 {len(knowledge_results)} 条结果")
+                except Exception as e:
+                    logger.error(f"RAG检索失败: {e}")
+
+            # 1.5. 如果没有找到相关知识，尝试自主学习
+            if not knowledge_results and self.auto_learning_service:
+                try:
+                    logger.info("尝试自主学习银行信息...")
+                    auto_learned_response = await self.auto_learning_service.auto_learn_and_respond(user_message)
+                    if auto_learned_response:
+                        logger.info("自主学习成功，返回学习结果")
+                        return auto_learned_response
+                except Exception as e:
+                    logger.error(f"自主学习失败: {e}")
+
+            # 2. 基于检索结果使用LLM生成回答
+            if self.llm_service and knowledge_results:
+                try:
+                    logger.info("基于RAG结果使用LLM生成回复")
+                    response = await self._generate_llm_response_with_rag(user_message, knowledge_results)
                     if response and "抱歉" not in response and "AI服务暂时不可用" not in response:
-                        logger.info("LLM回复成功")
+                        logger.info("LLM+RAG回复成功")
                         return response
                     else:
-                        logger.info("LLM回复失败，使用预设回复")
+                        logger.info("LLM+RAG回复失败，尝试直接LLM")
                 except Exception as e:
-                    logger.error(f"LLM调用失败: {e}")
-            
-            # 2. 如果LLM失败，使用预设的智能回复
+                    logger.error(f"LLM+RAG调用失败: {e}")
+
+            # 3. 如果RAG+LLM失败，尝试直接LLM
+            if self.llm_service:
+                try:
+                    logger.info("尝试直接LLM生成回复")
+                    response = await self._generate_llm_response_async(user_message)
+                    if response and "抱歉" not in response and "AI服务暂时不可用" not in response:
+                        logger.info("直接LLM回复成功")
+                        return response
+                    else:
+                        logger.info("直接LLM回复失败，使用预设回复")
+                except Exception as e:
+                    logger.error(f"直接LLM调用失败: {e}")
+
+            # 4. 智能学习系统评估和学习
+            if self.smart_learning:
+                try:
+                    logger.info("智能学习系统评估...")
+                    should_learn, reason = await self.smart_learning.should_learn_more(user_message, "")
+                    if should_learn:
+                        logger.info(f"触发智能学习: {reason}")
+                        learning_result = await self.smart_learning.trigger_learning(user_message)
+                        if learning_result.get("success", False):
+                            logger.info("智能学习成功，重新生成回复")
+                            # 重新尝试RAG检索
+                            knowledge_results = await self.vector_rag_service.search_knowledge_hybrid(
+                                query=user_message,
+                                max_results=5
+                            ) if self.vector_rag_service else []
+
+                            if knowledge_results and self.llm_service:
+                                response = await self._generate_llm_response_with_rag(user_message, knowledge_results)
+                                if response and "抱歉" not in response:
+                                    return response
+                except Exception as e:
+                    logger.error(f"智能学习系统失败: {e}")
+
+            # 5. 最后回退到预设的智能回复
             logger.info("使用预设智能回复")
             return self._generate_smart_fallback_response(user_message)
-                
+
         except Exception as e:
             logger.error(f"生成回复失败: {e}")
+            return "抱歉，我暂时无法处理您的请求，请稍后再试。"
+    
+    async def _generate_llm_response_with_rag(self, user_message: str, knowledge_results: List[Dict[str, Any]]) -> str:
+        """使用LLM基于RAG检索结果生成回答"""
+        try:
+            if not self.llm_service:
+                return "抱歉，AI服务暂时不可用，请稍后再试。"
+            
+            # 构建知识库上下文
+            knowledge_context = ""
+            if knowledge_results:
+                knowledge_context = "\n\n相关银行信息：\n"
+                for i, result in enumerate(knowledge_results, 1):
+                    title = result.get('title', '')
+                    content = result.get('content', '')
+                    similarity = result.get('similarity_score', 0)
+                    knowledge_context += f"\n{i}. {title} (相关度: {similarity:.2f})\n{content}\n"
+            
+            # 构建提示词
+            system_prompt = f"""你是一个专业的银行信贷顾问，擅长回答个人信用贷款相关问题。
+
+请根据用户的问题和提供的知识库信息，提供专业、准确、有用的回答。
+
+知识库信息：{knowledge_context}
+
+回答要求：
+1. 直接回答用户的问题
+2. 基于知识库信息提供准确的银行产品信息
+3. 如果知识库中没有相关信息，请诚实说明
+4. 提供实用的建议
+5. 使用Markdown格式让回答更易读
+
+请用中文回答，保持专业和友好的语调。"""
+            
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message}
+            ]
+            
+            # 调用LLM
+            result = await self.llm_service.generate_response(messages)
+            
+            # 处理LLM返回结果
+            if isinstance(result, dict):
+                if result.get("success", False):
+                    return result.get("response", "抱歉，我暂时无法处理您的请求，请稍后再试。")
+                else:
+                    logger.error(f"LLM+RAG调用失败: {result.get('error', '未知错误')}")
+                    return "抱歉，我暂时无法处理您的请求，请稍后再试。"
+            elif isinstance(result, str):
+                return result
+            else:
+                logger.error(f"LLM+RAG返回格式错误: {type(result)}")
+                return "抱歉，我暂时无法处理您的请求，请稍后再试。"
+            
+        except Exception as e:
+            logger.error(f"LLM+RAG回答失败: {e}")
             return "抱歉，我暂时无法处理您的请求，请稍后再试。"
     
     async def _generate_llm_response_async(self, user_message: str) -> str:
@@ -432,3 +609,178 @@ class AIChatbot:
         except Exception as e:
             logger.error(f"智能回退回复失败: {e}")
             return "抱歉，我暂时无法处理您的请求，请稍后再试。"
+    
+    def _is_loan_recommendation_request(self, user_message: str) -> bool:
+        """判断是否为贷款推荐请求"""
+        recommendation_keywords = [
+            "推荐", "建议", "哪个好", "选择", "比较", "对比", "适合", "有利",
+            "月收入", "收入", "信用", "征信", "贷款金额", "贷款期限", "利率",
+            "申请", "条件", "要求", "额度", "期限", "费率", "利息"
+        ]
+        
+        user_message_lower = user_message.lower()
+        return any(keyword in user_message_lower for keyword in recommendation_keywords)
+    
+    async def _generate_loan_recommendation_response(self, user_message: str, context: Dict[str, Any] = None) -> str:
+        """生成智能贷款推荐回复"""
+        try:
+            if not self.loan_recommendation:
+                return None
+            
+            # 从用户消息中提取用户信息
+            user_info = self._extract_user_info_from_message(user_message)
+            
+            # 分析用户画像
+            user_profile = await self.loan_recommendation.analyze_user_profile(user_info)
+            
+            # 计算产品评分
+            scored_products = await self.loan_recommendation.calculate_product_scores(user_profile)
+            
+            # 生成推荐报告
+            recommendation_report = await self.loan_recommendation.generate_recommendation_report(
+                user_profile, scored_products
+            )
+            
+            # 格式化回复
+            response = self._format_recommendation_response(recommendation_report, scored_products[:5])
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"生成贷款推荐回复失败: {e}")
+            return None
+    
+    def _extract_user_info_from_message(self, user_message: str) -> Dict[str, Any]:
+        """从用户消息中提取用户信息"""
+        user_info = {
+            "monthly_income": 8000,  # 默认值
+            "credit_score": 700,     # 默认值
+            "loan_amount": 100000,   # 默认值
+            "loan_term": 24,         # 默认值
+            "age": 30,               # 默认值
+            "urgency": "normal",     # 默认值
+            "risk_tolerance": "medium"  # 默认值
+        }
+        
+        # 简单的关键词提取（实际应用中可以使用更复杂的NLP技术）
+        import re
+        
+        # 提取收入信息
+        income_patterns = [
+            r'月收入[：:]?\s*(\d+)',
+            r'收入[：:]?\s*(\d+)',
+            r'工资[：:]?\s*(\d+)',
+            r'(\d+)\s*元.*月'
+        ]
+        for pattern in income_patterns:
+            match = re.search(pattern, user_message)
+            if match:
+                user_info["monthly_income"] = int(match.group(1))
+                break
+        
+        # 提取贷款金额
+        amount_patterns = [
+            r'贷款[：:]?\s*(\d+)',
+            r'借[：:]?\s*(\d+)',
+            r'需要[：:]?\s*(\d+)',
+            r'(\d+)\s*万'
+        ]
+        for pattern in amount_patterns:
+            match = re.search(pattern, user_message)
+            if match:
+                amount = int(match.group(1))
+                if '万' in user_message:
+                    user_info["loan_amount"] = amount * 10000
+                else:
+                    user_info["loan_amount"] = amount
+                break
+        
+        # 提取贷款期限
+        term_patterns = [
+            r'(\d+)\s*年',
+            r'(\d+)\s*个月',
+            r'期限[：:]?\s*(\d+)'
+        ]
+        for pattern in term_patterns:
+            match = re.search(pattern, user_message)
+            if match:
+                term = int(match.group(1))
+                if '年' in user_message:
+                    user_info["loan_term"] = term * 12
+                else:
+                    user_info["loan_term"] = term
+                break
+        
+        # 提取年龄信息
+        age_patterns = [
+            r'(\d+)\s*岁',
+            r'年龄[：:]?\s*(\d+)'
+        ]
+        for pattern in age_patterns:
+            match = re.search(pattern, user_message)
+            if match:
+                user_info["age"] = int(match.group(1))
+                break
+        
+        # 提取紧急程度
+        if any(word in user_message for word in ['急', '紧急', '快', '马上', '立即']):
+            user_info["urgency"] = "urgent"
+        elif any(word in user_message for word in ['不急', '慢慢', '不着急']):
+            user_info["urgency"] = "low"
+        
+        # 提取风险偏好
+        if any(word in user_message for word in ['保守', '稳健', '安全']):
+            user_info["risk_tolerance"] = "low"
+        elif any(word in user_message for word in ['激进', '冒险', '高风险']):
+            user_info["risk_tolerance"] = "high"
+        
+        return user_info
+    
+    def _format_recommendation_response(self, recommendation_report: Dict[str, Any], 
+                                      top_products: List[Dict[str, Any]]) -> str:
+        """格式化推荐回复"""
+        try:
+            response = "## 🎯 智能贷款推荐分析\n\n"
+            
+            # 用户画像摘要
+            if "user_profile_summary" in recommendation_report:
+                response += f"**{recommendation_report['user_profile_summary']}**\n\n"
+            
+            # 推荐理由
+            if "recommendation_reasoning" in recommendation_report:
+                response += f"### 📊 推荐理由\n{recommendation_report['recommendation_reasoning']}\n\n"
+            
+            # 顶级推荐
+            if "top_recommendations" in recommendation_report:
+                response += "### 🏆 推荐产品排名\n\n"
+                for i, product in enumerate(recommendation_report["top_recommendations"], 1):
+                    response += f"**{i}. {product['bank_name']} - {product['product_name']}**\n"
+                    response += f"- 综合评分: {product['score']}/10\n"
+                    response += f"- 适合度: {product['suitability']}\n"
+                    response += f"- 预估利率: {product['estimated_rate']}\n"
+                    response += f"- 最高额度: {product['max_amount']}\n"
+                    response += f"- 审批时间: {product['approval_time']}\n"
+                    response += f"- 特色功能: {', '.join(product['special_features'])}\n\n"
+            
+            # 成本分析
+            if "cost_analysis" in recommendation_report:
+                response += f"### 💰 成本分析\n{recommendation_report['cost_analysis']}\n"
+            
+            # 风险分析
+            if "risk_analysis" in recommendation_report:
+                response += f"### ⚠️ 风险分析\n{recommendation_report['risk_analysis']}\n"
+            
+            # 下一步建议
+            if "next_steps" in recommendation_report:
+                response += "### 📋 下一步建议\n"
+                for step in recommendation_report["next_steps"]:
+                    response += f"- {step}\n"
+            
+            response += "\n---\n"
+            response += "💡 **提示**: 以上推荐基于您提供的信息，实际利率和条件以银行最终审批为准。建议您联系银行客服获取最新政策信息。"
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"格式化推荐回复失败: {e}")
+            return "抱歉，推荐分析生成失败，请稍后再试。"
